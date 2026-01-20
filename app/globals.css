@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* MANNA calm defaults */
+body {
+  background-color: #fafafa;
+}
+
+main {
+  line-height: 1.65;
+}
+
+/* Soft devotional cards */
+section,
+.rounded-lg {
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Quiet pill */
+.rounded-full {
+  background-color: #f4f6f7;
+}
