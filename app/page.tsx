@@ -26,3 +26,9 @@ export default function Home() {
 
   return <LandingPage />;
 }
+return (
+  <>
+    <div style={{ display: "none" }}>DEPLOY_CHECK_001</div>
+    <LandingPage />
+  </>
+);
