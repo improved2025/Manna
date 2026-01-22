@@ -22,7 +22,6 @@ export default function Home() {
     setReady(true);
   }, [router]);
 
-  // Prevent a flash of the home page if we’re about to redirect
   if (!ready) return null;
 
   return <LandingPage />;
