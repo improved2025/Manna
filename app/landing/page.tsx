@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Link from "next/link";
-import InstallButton from "@/components/InstallButton";
+import InstallButton from "../../components/InstallButton";
 
 export default function HomePage() {
   return (
