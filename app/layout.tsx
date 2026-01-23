@@ -1,10 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import PwaRegister from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
-  title: "MANNA — Daily Bread, Daily Walk",
-  description:
-    "A scripture-first daily devotional web app designed to help believers walk with God one day at a time.",
+  title: "MANNA",
+  description: "Daily Bread. Daily Walk.",
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#047857",
 };
 
 export default function RootLayout({
@@ -14,7 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-white text-slate-900">{children}</body>
+      <body>
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }
