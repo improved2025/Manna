@@ -1,4 +1,4 @@
-const CACHE_NAME = "manna-v1";
+const CACHE_NAME = "manna-v2";
 const OFFLINE_URL = "/offline";
 
 const CORE_ASSETS = [
@@ -7,7 +7,7 @@ const CORE_ASSETS = [
   "/help",
   "/surrender",
   OFFLINE_URL,
-  "/manifest.webmanifest"
+  "/manifest.webmanifest",
 ];
 
 self.addEventListener("install", (event) => {
@@ -18,19 +18,27 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))));
+      await self.clients.claim();
+    })()
+  );
 });
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Only handle same-origin GET requests
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Navigation requests: try network, fall back to cache, then offline page
+  // Never cache API calls
+  if (url.pathname.startsWith("/api/")) return;
+
+  // Navigation: network-first so you see updates, fallback to cache, then offline page
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -47,7 +55,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static files: cache-first
+  // Static: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
