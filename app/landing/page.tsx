@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Link from "next/link";
+import InstallButton from "@/components/InstallButton";
 
 export default function HomePage() {
   return (
@@ -34,17 +35,12 @@ export default function HomePage() {
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link
                   href="/start"
-                  className="rounded-md bg-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                  className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
                 >
                   Start Today
                 </Link>
 
-                <button
-                  type="button"
-                  className="rounded-md border border-slate-300 bg-white px-6 py-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                >
-                  Install on phone
-                </button>
+                <InstallButton />
               </div>
 
               <div className="mt-7 inline-flex max-w-xl items-start rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950">
@@ -171,7 +167,7 @@ export default function HomePage() {
                 <div className="md:text-right">
                   <Link
                     href="/help"
-                    className="inline-flex items-center justify-center rounded-md bg-slate-900 px-10 py-4 text-sm font-semibold text-white hover:bg-slate-800"
+                    className="inline-flex items-center justify-center rounded-md bg-emerald-700 px-10 py-4 text-sm font-semibold text-white hover:bg-emerald-800"
                   >
                     I NEED HELP
                   </Link>
