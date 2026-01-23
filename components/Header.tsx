@@ -8,7 +8,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/landing" className="flex items-center gap-3">
           <Image
-            src="/icons/manna-icon.png"
+            src="/icons/manna-icon-v2.png"
             alt="Manna"
             width={44}
             height={44}

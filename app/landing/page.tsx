@@ -21,13 +21,14 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-5 text-xl leading-relaxed text-slate-800">
-                One Scripture. One word for today. One prayer to carry you through.
+                One Scripture. One word for today. One prayer to carry you
+                through.
               </p>
 
               <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600">
-                MANNA meets you once a day with what matters most: Scripture, a grounded word,
-                and a spoken prayer you can carry into real life. No noise. No overload. Just
-                steady truth for today.
+                MANNA meets you once a day with what matters most: Scripture, a
+                grounded word, and a spoken prayer you can carry into real life.
+                No noise. No overload. Just steady truth for today.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -47,7 +48,8 @@ export default function HomePage() {
               </div>
 
               <div className="mt-7 inline-flex max-w-xl items-start rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950">
-                Scripture first. Spoken prayers. Steady strength for everyday life.
+                Scripture first. Spoken prayers. Steady strength for everyday
+                life.
               </div>
             </div>
 
@@ -68,14 +70,18 @@ export default function HomePage() {
                 </li>
 
                 <li className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-900">Short exhortation</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    Short exhortation
+                  </p>
                   <p className="mt-1 text-sm leading-relaxed text-slate-600">
                     Grounded. Practical. For today.
                   </p>
                 </li>
 
                 <li className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-900">Prophetic spoken prayer</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    Prophetic spoken prayer
+                  </p>
                   <p className="mt-1 text-sm leading-relaxed text-slate-600">
                     Spoken aloud. Grounded in Scripture. Directed to God.
                   </p>
@@ -83,8 +89,8 @@ export default function HomePage() {
               </ul>
 
               <div className="mt-7 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                Personal, without intrusion. Choose your season. Choose your time. No account
-                required.
+                Personal, without intrusion. Choose your season. Choose your
+                time. No account required.
               </div>
             </div>
           </section>
@@ -116,8 +122,8 @@ export default function HomePage() {
                     Choose your season
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    Preparation, Restoration, Waiting, Transition, or Renewal. It shapes the
-                    opening line, not the content.
+                    Preparation, Restoration, Waiting, Transition, or Renewal.
+                    It shapes the opening line, not the content.
                   </p>
                 </div>
 
@@ -129,8 +135,8 @@ export default function HomePage() {
                     Open Today
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    One Scripture reference, one grounded word, one prayer. No overload. Just
-                    what you need for now.
+                    One Scripture reference, one grounded word, one prayer. No
+                    overload. Just what you need for now.
                   </p>
                 </div>
 
@@ -145,11 +151,6 @@ export default function HomePage() {
                     Keep it simple. Read it once. Pray it once. Return tomorrow.
                   </p>
                 </div>
-              </div>
-
-              <div className="mt-8 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-700">
-                Quiet social proof: Many people don’t need more content. They need one steady
-                word each day that holds.
               </div>
             </div>
           </section>

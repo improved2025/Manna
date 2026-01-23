@@ -23,12 +23,20 @@ export default async function EmotionalStatePage({
         <p className="mt-3 text-slate-600">
           That page does not exist. Choose a feeling from the list.
         </p>
-        <div className="mt-6">
+
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/help"
-            className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+            className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
           >
-            Back to feelings
+            Go back
+          </Link>
+
+          <Link
+            href="/landing"
+            className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Home
           </Link>
         </div>
       </main>
@@ -44,16 +52,23 @@ export default async function EmotionalStatePage({
         {toLabel(slug)}
       </h1>
 
-      <p className="mt-6 text-slate-800 leading-relaxed whitespace-pre-line">
+      <p className="mt-6 whitespace-pre-line text-slate-800 leading-relaxed">
         {message.text}
       </p>
 
-      <div className="mt-10">
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/help"
-          className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+          className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
         >
-          Back to feelings
+          Go back
+        </Link>
+
+        <Link
+          href="/landing"
+          className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+        >
+          Home
         </Link>
       </div>
     </main>
