@@ -1,23 +1,30 @@
 import Link from "next/link";
 import { EMOTIONAL_STATES } from "@/content/emotional-states";
+import SurrenderCta from "@/components/SurrenderCta";
 
 function toLabel(slug: string) {
   return slug.charAt(0).toUpperCase() + slug.slice(1);
 }
 
 function chipStyle(state: string) {
-  // Soft, calm tints. Not loud. Not neon.
   const map: Record<string, string> = {
-    discouraged: "bg-amber-50 border-amber-200 text-amber-900 hover:bg-amber-100",
-    lonely: "bg-indigo-50 border-indigo-200 text-indigo-900 hover:bg-indigo-100",
-    angry: "bg-rose-50 border-rose-200 text-rose-900 hover:bg-rose-100",
-    afraid: "bg-sky-50 border-sky-200 text-sky-900 hover:bg-sky-100",
-    hurting: "bg-violet-50 border-violet-200 text-violet-900 hover:bg-violet-100",
-    stuck: "bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100",
-    exhausted: "bg-emerald-50 border-emerald-200 text-emerald-900 hover:bg-emerald-100",
+    discouraged:
+      "bg-amber-50 border-amber-200 text-amber-950 hover:bg-amber-100",
+    lonely:
+      "bg-indigo-50 border-indigo-200 text-indigo-950 hover:bg-indigo-100",
+    angry: "bg-rose-50 border-rose-200 text-rose-950 hover:bg-rose-100",
+    afraid: "bg-sky-50 border-sky-200 text-sky-950 hover:bg-sky-100",
+    hurting:
+      "bg-violet-50 border-violet-200 text-violet-950 hover:bg-violet-100",
+    stuck: "bg-slate-50 border-slate-200 text-slate-950 hover:bg-slate-100",
+    exhausted:
+      "bg-emerald-50 border-emerald-200 text-emerald-950 hover:bg-emerald-100",
   };
 
-  return map[state] ?? "bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100";
+  return (
+    map[state] ??
+    "bg-slate-50 border-slate-200 text-slate-950 hover:bg-slate-100"
+  );
 }
 
 export default function HelpPage() {
@@ -33,18 +40,21 @@ export default function HelpPage() {
         Choose what best describes where you are. You don’t have to explain it.
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      {/* Bigger, more "popping" tabs */}
+      <div className="mt-8 flex flex-wrap gap-4">
         {states.map((state) => (
           <Link
             key={state}
             href={`/help/${state}`}
             className={[
               "inline-flex items-center justify-center",
-              "rounded-full border px-5 py-3",
-              "text-sm font-semibold",
+              "rounded-full border",
+              "px-7 py-4",
+              "text-base font-semibold",
               "shadow-sm",
               "transition",
-              "active:translate-y-[1px] active:shadow-none",
+              "hover:shadow-md",
+              "active:translate-y-[1px] active:shadow-sm",
               chipStyle(state),
             ].join(" ")}
           >
@@ -52,6 +62,9 @@ export default function HelpPage() {
           </Link>
         ))}
       </div>
+
+      {/* Add Surrender CTA at bottom */}
+      <SurrenderCta />
 
       <div className="mt-12">
         <Link

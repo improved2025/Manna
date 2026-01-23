@@ -2,8 +2,14 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
+import SurrenderCta from "@/components/SurrenderCta";
 
-type Season = "Preparation" | "Restoration" | "Waiting" | "Transition" | "Renewal";
+type Season =
+  | "Preparation"
+  | "Restoration"
+  | "Waiting"
+  | "Transition"
+  | "Renewal";
 
 type DailyRow = {
   daykey: string;
@@ -46,7 +52,6 @@ function normalizeSeason(raw: string | null): Season {
 }
 
 function getSeasonOpeningLine(season: Season) {
-  // Calm, pastoral, simple. No hype.
   switch (season) {
     case "Preparation":
       return "Today, let God shape you quietly and clearly.";
@@ -81,7 +86,6 @@ export default function TodayPage() {
   const supabase = useMemo(() => makeSupabaseClient(), []);
 
   useEffect(() => {
-    // Local date (not UTC), and localStorage is client-only.
     const s = safeGetLS("manna_season") || safeGetLS("season");
     setSeason(normalizeSeason(s));
     setDaykey(getLocalDayKey(new Date()));
@@ -256,6 +260,9 @@ export default function TodayPage() {
             Refresh
           </a>
         </div>
+
+        {/* Surrender CTA at bottom */}
+        <SurrenderCta />
       </section>
     </main>
   );
