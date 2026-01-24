@@ -37,23 +37,83 @@ function addDaysUTC(d: Date, days: number) {
   return x;
 }
 
-// Calm, scripture-first content. No hype.
-function generateScriptureRef(i: number): string {
-  const refs = [
-    "Psalm 23:1-3",
-    "Isaiah 41:10",
-    "Matthew 11:28-30",
-    "Philippians 4:6-7",
-    "Proverbs 3:5-6",
-    "Romans 8:28",
-    "2 Corinthians 5:7",
-    "Psalm 46:1",
-    "John 15:4-5",
-    "Hebrews 10:23",
-  ];
-  return refs[i % refs.length];
+function normalizeScriptureRef(s: string) {
+  return (s || "").trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+function hashStringToInt(input: string) {
+  // small deterministic hash (stable across runs)
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
+// Calm, scripture-first pool.
+// IMPORTANT: To enforce 30-day no-repeat, you need a pool > 30.
+// This pool is intentionally bigger so repeats are avoidable.
+function scripturePool(): string[] {
+  return [
+    "Psalm 23:1-3",
+    "Psalm 46:1",
+    "Psalm 27:1",
+    "Psalm 121:1-2",
+    "Psalm 62:5-6",
+    "Psalm 91:1-2",
+    "Psalm 16:8",
+    "Psalm 34:17-18",
+    "Psalm 37:23-24",
+    "Psalm 55:22",
+    "Psalm 103:1-5",
+    "Psalm 119:105",
+    "Proverbs 3:5-6",
+    "Proverbs 4:23",
+    "Proverbs 16:3",
+    "Isaiah 26:3",
+    "Isaiah 41:10",
+    "Isaiah 40:31",
+    "Isaiah 43:2",
+    "Isaiah 30:15",
+    "Lamentations 3:22-23",
+    "Matthew 6:33",
+    "Matthew 11:28-30",
+    "Matthew 7:7",
+    "John 14:27",
+    "John 15:4-5",
+    "John 10:10",
+    "John 16:33",
+    "Romans 8:28",
+    "Romans 8:31",
+    "Romans 12:2",
+    "Romans 15:13",
+    "1 Corinthians 15:58",
+    "2 Corinthians 5:7",
+    "2 Corinthians 12:9",
+    "Galatians 6:9",
+    "Ephesians 3:20",
+    "Ephesians 6:10",
+    "Philippians 4:6-7",
+    "Philippians 4:13",
+    "Colossians 3:15",
+    "Colossians 3:2",
+    "1 Thessalonians 5:24",
+    "2 Thessalonians 3:3",
+    "Hebrews 10:23",
+    "Hebrews 4:16",
+    "Hebrews 12:1-2",
+    "James 1:5",
+    "James 1:2-4",
+    "1 Peter 5:7",
+    "1 Peter 2:9",
+    "1 John 4:18",
+    "1 John 5:14",
+    "Jude 1:24",
+  ];
+}
+
+// Calm, scripture-first reflection lines. Keep short and grounded.
 function baseReflection(i: number): string {
   const lines = [
     "God does not rush you. He leads you.",
@@ -63,6 +123,35 @@ function baseReflection(i: number): string {
     "What God is forming in you matters as much as what He is doing for you.",
     "Grace gives you steadiness, not performance pressure.",
     "You are not carried by your feelings. You are carried by God.",
+    "God’s presence is not a mood. It is a reality.",
+    "Small steps with God still move you forward.",
+    "You don’t need to force clarity. Stay faithful and stay close.",
+    "God is not fragile. Bring Him the truth of your heart.",
+    "Even here, God can hold you steady.",
+    "Your pace can be calm and still be obedient.",
+    "When you don’t know what to do next, stay with what you know is true.",
+    "Peace is not the absence of trouble. It is the presence of God in trouble.",
+    "God can restore without making noise.",
+    "You can be calm and still be strong.",
+    "Let today be simple: trust, obey, and keep moving.",
+    "God’s help is not late. It arrives with purpose.",
+    "You are not behind when God is leading.",
+    "God’s guidance often feels like quiet confidence, not loud urgency.",
+    "The Lord can carry what you cannot fix today.",
+    "You can release control without losing responsibility.",
+    "God’s wisdom is available without shame.",
+    "God is faithful even when your strength feels small.",
+    "God can give you clarity one step at a time.",
+    "Let your heart settle before you decide anything heavy.",
+    "You can wait without wasting your life.",
+    "Trust doesn’t mean you feel nothing. It means you keep walking anyway.",
+    "God can renew you without changing your personality.",
+    "Your life is not held together by your effort alone.",
+    "You can breathe again. God is still God.",
+    "God’s peace is strong enough to guard your mind.",
+    "Today is not too small for God to be present in it.",
+    "You are allowed to slow down and still be faithful.",
+    "God’s love does not fluctuate with your performance.",
   ];
   return lines[i % lines.length];
 }
@@ -89,6 +178,11 @@ function confessionBase(i: number): string {
     "I choose trust over fear today.",
     "I am guided by God’s wisdom and timing.",
     "I am strengthened to obey with a willing heart.",
+    "I will not be driven by anxiety. I will be led by God.",
+    "I receive grace for today’s steps.",
+    "I am not alone. God is with me.",
+    "I will not rush. I will remain steady.",
+    "I will hold to hope with a quiet heart.",
   ];
   return lines[i % lines.length];
 }
@@ -132,6 +226,59 @@ function buildSeasonMap(fn: (season: Season) => string): Record<string, string> 
   return map;
 }
 
+async function fetchRecentScriptureSet(
+  supabase: any,
+  daysBack: number
+): Promise<Set<string>> {
+  // We store daykeys as YYYY-MM-DD, so we can query by range.
+  const start = addDaysUTC(new Date(), -daysBack);
+  const startKey = dayKeyUTC(start);
+
+  const { data, error } = await supabase
+    .from("daily_feeds")
+    .select("scripture_ref, daykey")
+    .gte("daykey", startKey)
+    .order("daykey", { ascending: false });
+
+  if (error) throw new Error(`Failed to fetch recent scripture refs: ${error.message}`);
+
+  const set = new Set<string>();
+  for (const row of data || []) {
+    if (row?.scripture_ref) set.add(normalizeScriptureRef(row.scripture_ref));
+  }
+  return set;
+}
+
+function pickScriptureNoRepeat(params: {
+  daykey: string;
+  pool: string[];
+  recent: Set<string>;
+  usedThisRun: Set<string>;
+}) {
+  const { daykey, pool, recent, usedThisRun } = params;
+
+  const seed = hashStringToInt(daykey);
+  const startIndex = seed % pool.length;
+
+  // Scan the pool starting from a deterministic index until we find an allowed ref.
+  for (let offset = 0; offset < pool.length; offset++) {
+    const candidate = pool[(startIndex + offset) % pool.length];
+    const norm = normalizeScriptureRef(candidate);
+
+    if (recent.has(norm)) continue;       // used in last 30 days
+    if (usedThisRun.has(norm)) continue;  // already chosen for another missing day in this run
+
+    usedThisRun.add(norm);
+    return candidate;
+  }
+
+  // If we get here, the pool is too small vs no-repeat window.
+  // We fail loudly so you don't silently ship duplicate scripture.
+  throw new Error(
+    `Scripture pool exhausted: cannot satisfy 30-day no-repeat. Increase the pool size or reduce the window.`
+  );
+}
+
 export async function GET(req: Request) {
   try {
     const secret = mustEnv("CRON_SECRET");
@@ -170,20 +317,35 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, inserted: 0, days: daykeys });
     }
 
-    const rows = missing.map((k) => {
-      const i = daykeys.indexOf(k);
+    // --- NEW: Enforce 30-day no-repeat scripture_ref ---
+    const recentScriptures = await fetchRecentScriptureSet(supabase, 30);
+    const usedThisRun = new Set<string>();
+    const pool = scripturePool();
 
-      const scripture_ref = generateScriptureRef(i);
-      const exhortation = baseReflection(i);
+    const rows = missing.map((k) => {
+      // Make per-day variation deterministic by daykey (not by index-in-window).
+      const seed = hashStringToInt(k);
+
+      const scripture_ref = pickScriptureNoRepeat({
+        daykey: k,
+        pool,
+        recent: recentScriptures,
+        usedThisRun,
+      });
+
+      // This keeps content calm + varies across days without reusing the same “slot”
+      const exhortation = baseReflection(seed);
 
       // season-aware opening lines stored in exhortation_seasons
       const exhortation_seasons = buildSeasonMap((s) => seasonOpening(s));
 
-      const faith_confession = confessionBase(i);
-      const faith_confession_seasons = buildSeasonMap((s) => confessionSeason(s, i));
+      const faith_confession = confessionBase(seed);
+      const faith_confession_seasons = buildSeasonMap((s) => confessionSeason(s, seed));
 
-      // Store one display prayer in prayer_for_you (locked model).
-      const prayer_for_you = prayerForYou("Preparation");
+      // IMPORTANT: daily devotional is shared for all users.
+      // We'll rotate a calm prayer per day (still second-person), not tied to user season.
+      const prayerSeason = SEASONS[seed % SEASONS.length];
+      const prayer_for_you = prayerForYou(prayerSeason);
 
       // CRITICAL: prayer is NOT NULL. Copy prayer_for_you -> prayer.
       const prayer = prayer_for_you;
@@ -210,8 +372,12 @@ export async function GET(req: Request) {
       ok: true,
       inserted: rows.length,
       inserted_days: rows.map((r) => r.daykey),
+      no_repeat_window_days: 30,
     });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || "Cron failed" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: e?.message || "Cron failed" },
+      { status: 500 }
+    );
   }
 }
