@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
+import ShareButton from "../../components/ShareButton";
 
 export default function HomePage() {
   return (
@@ -32,7 +33,7 @@ export default function HomePage() {
                 No noise. No overload. Just steady truth for today.
               </p>
 
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+         <div className="mt-9 flex flex-wrap items-center gap-3">
   <Link
     href="/start"
     className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
@@ -41,6 +42,8 @@ export default function HomePage() {
   </Link>
 
   <InstallButton />
+
+  <ShareButton />
 </div>
 
               {/* NEW: subtle helper line */}

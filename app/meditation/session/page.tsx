@@ -107,8 +107,8 @@ export default function MeditationSessionPage() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80)",
+         backgroundImage: "url(/images/ocean.jpg)",
+
         }}
       />
       <div className="absolute inset-0 bg-black/55" />
