@@ -1,69 +1,65 @@
-const CACHE_NAME = "manna-v2";
+const CACHE_NAME = "manna-cache-v6";
+
 const OFFLINE_URL = "/offline";
 
-const CORE_ASSETS = [
+const ASSETS_TO_CACHE = [
   "/",
+  "/welcome",
   "/landing",
   "/help",
   "/surrender",
-  OFFLINE_URL,
+  "/offline",
   "/manifest.webmanifest",
+
+  // icons
+  "/icons/manna-icon-v2.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png"
 ];
 
+// Install: cache core pages
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
   self.skipWaiting();
 });
 
+// Activate: clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    (async () => {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))));
-      await self.clients.claim();
-    })()
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
   );
+  self.clients.claim();
 });
 
+// Fetch: network first, fallback to cache, then offline
 self.addEventListener("fetch", (event) => {
-  const req = event.request;
+  if (event.request.method !== "GET") return;
 
-  if (req.method !== "GET") return;
-
-  const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-
-  // Never cache API calls
-  if (url.pathname.startsWith("/api/")) return;
-
-  // Navigation: network-first so you see updates, fallback to cache, then offline page
-  if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          return res;
-        })
-        .catch(async () => {
-          const cached = await caches.match(req);
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
+        return response;
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => {
           return cached || caches.match(OFFLINE_URL);
         })
-    );
-    return;
-  }
-
-  // Static: cache-first
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-        return res;
-      });
-    })
+      )
   );
 });

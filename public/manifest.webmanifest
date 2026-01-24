@@ -2,7 +2,7 @@
   "name": "Manna",
   "short_name": "Manna",
   "description": "Daily devotion, prayer, and scripture for your walk with God",
-  "start_url": "/",
+  "start_url": "/welcome",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
