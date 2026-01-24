@@ -1,8 +1,7 @@
-const CACHE_NAME = "manna-cache-v6";
-
+const CACHE_NAME = "manna-cache-v7";
 const OFFLINE_URL = "/offline";
 
-const ASSETS_TO_CACHE = [
+const CORE_ASSETS = [
   "/",
   "/welcome",
   "/landing",
@@ -10,56 +9,38 @@ const ASSETS_TO_CACHE = [
   "/surrender",
   "/offline",
   "/manifest.webmanifest",
-
-  // icons
   "/icons/manna-icon-v2.png",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
 ];
 
-// Install: cache core pages
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activate: clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      )
+      Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))
     )
   );
   self.clients.claim();
 });
 
-// Fetch: network first, fallback to cache, then offline
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  // ✅ Navigation requests (page loads)
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+
+  // ✅ Cache-first for everything else
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
-        return response;
-      })
-      .catch(() =>
-        caches.match(event.request).then((cached) => {
-          return cached || caches.match(OFFLINE_URL);
-        })
-      )
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
