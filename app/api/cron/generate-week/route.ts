@@ -42,7 +42,7 @@ function normalizeScriptureRef(s: string) {
 }
 
 function hashStringToInt(input: string) {
-  // small deterministic hash (stable across runs)
+  // deterministic hash (stable across runs)
   let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
     h ^= input.charCodeAt(i);
@@ -52,8 +52,7 @@ function hashStringToInt(input: string) {
 }
 
 // Calm, scripture-first pool.
-// IMPORTANT: To enforce 30-day no-repeat, you need a pool > 30.
-// This pool is intentionally bigger so repeats are avoidable.
+// IMPORTANT: To enforce 30-day no-repeat, pool must be > 30.
 function scripturePool(): string[] {
   return [
     "Psalm 23:1-3",
@@ -204,20 +203,45 @@ function confessionSeason(season: Season, i: number): string {
   }
 }
 
-// 2–3 lines, second person, last line only: In Jesus’ name.
-function prayerForYou(season: Season): string {
-  switch (season) {
-    case "Preparation":
-      return "May God settle your heart and make His direction clear.\nMay He prepare you with strength and wisdom.\nIn Jesus’ name.";
-    case "Restoration":
-      return "May God repair what has been strained and restore what has been lost.\nMay your hope be renewed with steady peace.\nIn Jesus’ name.";
-    case "Waiting":
-      return "May God keep you anchored while you wait, without anxiety or strain.\nMay patience be filled with confidence in Him.\nIn Jesus’ name.";
-    case "Transition":
-      return "May God steady your steps as you move into what’s next.\nMay He guide you with clarity and calm courage.\nIn Jesus’ name.";
-    case "Renewal":
-      return "May God refresh your strength and renew your focus today.\nMay your spirit be lifted with quiet confidence.\nIn Jesus’ name.";
-  }
+// Prayer pool (2–3 lines, second person, last line only: In Jesus’ name.)
+function prayerPool(): string[] {
+  return [
+    "May God quiet your thoughts and steady your heart.\nMay His peace guard you through this day.\nIn Jesus’ name.",
+    "May the Lord strengthen you where you feel weak.\nMay His help meet you with calm clarity.\nIn Jesus’ name.",
+    "May God lift the weight you have been carrying.\nMay you walk today with quiet confidence in Him.\nIn Jesus’ name.",
+    "May the Lord guide your decisions without confusion.\nMay wisdom come with peace, not pressure.\nIn Jesus’ name.",
+    "May God heal what feels strained inside you.\nMay hope return gently and stay.\nIn Jesus’ name.",
+    "May the Lord keep you from fear-driven choices.\nMay faith lead your steps today.\nIn Jesus’ name.",
+    "May God give you patience that is strong, not passive.\nMay you wait with trust and stability.\nIn Jesus’ name.",
+    "May the Lord refresh your strength and renew your focus.\nMay joy rise quietly within you.\nIn Jesus’ name.",
+    "May God protect your mind from anxious spirals.\nMay your heart rest in His care.\nIn Jesus’ name.",
+    "May the Lord open the right doors at the right time.\nMay you remain steady and obedient.\nIn Jesus’ name.",
+    "May God restore what has been worn down.\nMay you feel His nearness in practical ways today.\nIn Jesus’ name.",
+    "May the Lord help you forgive without losing your peace.\nMay your heart remain clean and free.\nIn Jesus’ name.",
+    "May God give you courage that is quiet and firm.\nMay you do what is right without strain.\nIn Jesus’ name.",
+    "May the Lord bring order to what feels scattered.\nMay your day become simple and clear.\nIn Jesus’ name.",
+    "May God strengthen your boundaries and your love.\nMay you stay kind without being pulled off course.\nIn Jesus’ name.",
+    "May the Lord settle you where you feel unsettled.\nMay stability return to your thoughts.\nIn Jesus’ name.",
+    "May God remind you that you are not alone.\nMay His presence steady you in every moment.\nIn Jesus’ name.",
+    "May the Lord guard your words and your tone today.\nMay peace flow through your conversations.\nIn Jesus’ name.",
+    "May God help you release control without losing faith.\nMay you rest in His leadership.\nIn Jesus’ name.",
+    "May the Lord give you endurance without heaviness.\nMay you finish today with peace.\nIn Jesus’ name.",
+    "May God renew your hope where disappointment has lingered.\nMay your heart lift again.\nIn Jesus’ name.",
+    "May the Lord protect you from distraction and drift.\nMay your focus remain strong and gentle.\nIn Jesus’ name.",
+    "May God bring healing to your inner life.\nMay His love quiet what is restless.\nIn Jesus’ name.",
+    "May the Lord lead you step by step.\nMay clarity come without rushing.\nIn Jesus’ name.",
+    "May God strengthen your faith when you don’t feel strong.\nMay you remain steady and sure in Him.\nIn Jesus’ name.",
+    "May the Lord bring peace into your home and your day.\nMay you carry calm wherever you go.\nIn Jesus’ name.",
+    "May God help you let go of what you cannot change.\nMay grace hold you firmly today.\nIn Jesus’ name.",
+    "May the Lord revive what feels dull or tired in you.\nMay fresh strength rise quietly.\nIn Jesus’ name.",
+    "May God guard you from comparison and discouragement.\nMay you walk in your own grace today.\nIn Jesus’ name.",
+    "May the Lord meet you with mercy and direction.\nMay you sense His help as you move.\nIn Jesus’ name.",
+    "May God steady your emotions and strengthen your spirit.\nMay peace become your anchor today.\nIn Jesus’ name.",
+    "May the Lord help you do the next right thing.\nMay your steps be calm and faithful.\nIn Jesus’ name.",
+    "May God bring comfort where you’ve been carrying pain.\nMay your heart breathe again.\nIn Jesus’ name.",
+    "May the Lord guard your night and your rest.\nMay you sleep with peace and wake with strength.\nIn Jesus’ name.",
+    "May God keep you from worry and fill you with trust.\nMay His peace stay with you today.\nIn Jesus’ name.",
+  ];
 }
 
 function buildSeasonMap(fn: (season: Season) => string): Record<string, string> {
@@ -230,7 +254,6 @@ async function fetchRecentScriptureSet(
   supabase: any,
   daysBack: number
 ): Promise<Set<string>> {
-  // We store daykeys as YYYY-MM-DD, so we can query by range.
   const start = addDaysUTC(new Date(), -daysBack);
   const startKey = dayKeyUTC(start);
 
@@ -249,6 +272,28 @@ async function fetchRecentScriptureSet(
   return set;
 }
 
+async function fetchRecentPrayerSet(
+  supabase: any,
+  daysBack: number
+): Promise<Set<string>> {
+  const start = addDaysUTC(new Date(), -daysBack);
+  const startKey = dayKeyUTC(start);
+
+  const { data, error } = await supabase
+    .from("daily_feeds")
+    .select("prayer_for_you, daykey")
+    .gte("daykey", startKey)
+    .order("daykey", { ascending: false });
+
+  if (error) throw new Error(`Failed to fetch recent prayers: ${error.message}`);
+
+  const set = new Set<string>();
+  for (const row of data || []) {
+    if (row?.prayer_for_you) set.add((row.prayer_for_you || "").trim());
+  }
+  return set;
+}
+
 function pickScriptureNoRepeat(params: {
   daykey: string;
   pool: string[];
@@ -260,23 +305,44 @@ function pickScriptureNoRepeat(params: {
   const seed = hashStringToInt(daykey);
   const startIndex = seed % pool.length;
 
-  // Scan the pool starting from a deterministic index until we find an allowed ref.
   for (let offset = 0; offset < pool.length; offset++) {
     const candidate = pool[(startIndex + offset) % pool.length];
     const norm = normalizeScriptureRef(candidate);
 
-    if (recent.has(norm)) continue;       // used in last 30 days
-    if (usedThisRun.has(norm)) continue;  // already chosen for another missing day in this run
+    if (recent.has(norm)) continue;
+    if (usedThisRun.has(norm)) continue;
 
     usedThisRun.add(norm);
     return candidate;
   }
 
-  // If we get here, the pool is too small vs no-repeat window.
-  // We fail loudly so you don't silently ship duplicate scripture.
   throw new Error(
     `Scripture pool exhausted: cannot satisfy 30-day no-repeat. Increase the pool size or reduce the window.`
   );
+}
+
+function pickPrayerNoRepeat(params: {
+  daykey: string;
+  pool: string[];
+  recent: Set<string>;
+  usedThisRun: Set<string>;
+}) {
+  const { daykey, pool, recent, usedThisRun } = params;
+
+  const seed = hashStringToInt(daykey);
+  const startIndex = seed % pool.length;
+
+  for (let offset = 0; offset < pool.length; offset++) {
+    const candidate = pool[(startIndex + offset) % pool.length].trim();
+
+    if (recent.has(candidate)) continue;
+    if (usedThisRun.has(candidate)) continue;
+
+    usedThisRun.add(candidate);
+    return candidate;
+  }
+
+  throw new Error("Prayer pool exhausted: cannot satisfy 30-day no-repeat.");
 }
 
 export async function GET(req: Request) {
@@ -317,35 +383,41 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, inserted: 0, days: daykeys });
     }
 
-    // --- NEW: Enforce 30-day no-repeat scripture_ref ---
+    // Enforce 30-day no-repeat scripture + prayer
     const recentScriptures = await fetchRecentScriptureSet(supabase, 30);
-    const usedThisRun = new Set<string>();
-    const pool = scripturePool();
+    const usedScripturesThisRun = new Set<string>();
+    const scriptureRefs = scripturePool();
+
+    const recentPrayers = await fetchRecentPrayerSet(supabase, 30);
+    const usedPrayersThisRun = new Set<string>();
+    const prayers = prayerPool();
 
     const rows = missing.map((k) => {
-      // Make per-day variation deterministic by daykey (not by index-in-window).
+      // Deterministic per-day variation based on daykey (not index).
       const seed = hashStringToInt(k);
 
       const scripture_ref = pickScriptureNoRepeat({
         daykey: k,
-        pool,
+        pool: scriptureRefs,
         recent: recentScriptures,
-        usedThisRun,
+        usedThisRun: usedScripturesThisRun,
       });
 
-      // This keeps content calm + varies across days without reusing the same “slot”
       const exhortation = baseReflection(seed);
 
-      // season-aware opening lines stored in exhortation_seasons
+      // season-aware opening lines stored in exhortation_seasons (personalized tone)
       const exhortation_seasons = buildSeasonMap((s) => seasonOpening(s));
 
       const faith_confession = confessionBase(seed);
       const faith_confession_seasons = buildSeasonMap((s) => confessionSeason(s, seed));
 
-      // IMPORTANT: daily devotional is shared for all users.
-      // We'll rotate a calm prayer per day (still second-person), not tied to user season.
-      const prayerSeason = SEASONS[seed % SEASONS.length];
-      const prayer_for_you = prayerForYou(prayerSeason);
+      // Prayer (shared daily content) but varied, no-repeat within 30 days
+      const prayer_for_you = pickPrayerNoRepeat({
+        daykey: k,
+        pool: prayers,
+        recent: recentPrayers,
+        usedThisRun: usedPrayersThisRun,
+      });
 
       // CRITICAL: prayer is NOT NULL. Copy prayer_for_you -> prayer.
       const prayer = prayer_for_you;
