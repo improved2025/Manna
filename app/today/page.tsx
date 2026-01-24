@@ -261,8 +261,27 @@ export default function TodayPage() {
           </a>
         </div>
 
-        {/* Surrender CTA at bottom */}
-        <SurrenderCta />
+        {/* Meditation + Surrender (Meditation first on mobile) */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Meditation (quiet, secondary) */}
+          <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+  <a
+  href="/meditation"
+  className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+>
+  MEDITATE
+</a>
+
+  <div className="mt-2 text-xs text-slate-600">
+    Take a quiet 15 minutes in a place of peace.
+  </div>
+</div>
+
+          {/* Surrender (existing CTA, stronger) */}
+          <div className="order-2 sm:order-none">
+            <SurrenderCta />
+          </div>
+        </div>
       </section>
     </main>
   );
