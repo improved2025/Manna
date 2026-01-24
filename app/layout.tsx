@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import PwaRegister from "../components/PwaRegister";
+import InstallTracking from "../components/InstallTracking";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "MANNA",
@@ -21,7 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <PwaRegister />
+        <InstallTracking />
         {children}
+        <Analytics />
       </body>
     </html>
   );
