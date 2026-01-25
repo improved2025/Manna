@@ -141,7 +141,9 @@ async function fetchKjvText(scriptureRef: string) {
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
-    throw new Error(`Failed to fetch KJV text for ${scriptureRef}: ${res.status}`);
+    throw new Error(
+      `Failed to fetch KJV text for ${scriptureRef}: ${res.status}`
+    );
   }
 
   const json: any = await res.json();
@@ -220,21 +222,35 @@ function detectTheme(text: string): {
 
   if (has(/\b(fear|afraid|terrified)\b/)) return { theme: "fear" };
   if (has(/\bpeace\b/) || has(/\bquiet\b/)) return { theme: "peace" };
-  if (has(/\btrust\b/) || has(/\bfaith\b/) || has(/\bbelieve\b/)) return { theme: "trust" };
-  if (has(/\bstrength\b/) || has(/\bstrong\b/) || has(/\brenew\b/) || has(/\bendure\b/))
+  if (has(/\btrust\b/) || has(/\bfaith\b/) || has(/\bbelieve\b/))
+    return { theme: "trust" };
+  if (
+    has(/\bstrength\b/) ||
+    has(/\bstrong\b/) ||
+    has(/\brenew\b/) ||
+    has(/\bendure\b/)
+  )
     return { theme: "strength" };
-  if (has(/\bwisdom\b/) || has(/\bunderstanding\b/) || has(/\bguide\b/) || has(/\bdirect\b/))
+  if (
+    has(/\bwisdom\b/) ||
+    has(/\bunderstanding\b/) ||
+    has(/\bguide\b/) ||
+    has(/\bdirect\b/)
+  )
     return { theme: "wisdom" };
   if (has(/\bpath\b/) || has(/\bway\b/) || has(/\blead\b/) || has(/\blight\b/))
     return { theme: "guidance" };
-  if (has(/\brest\b/) || has(/\bcome unto me\b/) || has(/\byoke\b/)) return { theme: "rest" };
+  if (has(/\brest\b/) || has(/\bcome unto me\b/) || has(/\byoke\b/))
+    return { theme: "rest" };
   if (has(/\blove\b/) || has(/\bperfect love\b/)) return { theme: "love" };
-  if (has(/\bwait\b/) || has(/\bpatient\b/) || has(/\bhope\b/)) return { theme: "endurance" };
+  if (has(/\bwait\b/) || has(/\bpatient\b/) || has(/\bhope\b/))
+    return { theme: "endurance" };
 
   return { theme: "general" };
 }
 
-function buildExhortationFromScripture(scriptureText: string, seed: number): string {
+// IMPORTANT: This returns the scripture-based explanation ONLY (no season opener).
+function buildExhortationCoreFromScripture(scriptureText: string, seed: number): string {
   const { theme } = detectTheme(scriptureText);
 
   const variants: Record<string, string[]> = {
@@ -302,7 +318,11 @@ function buildExhortationFromScripture(scriptureText: string, seed: number): str
   return `${line} ${applications[(seed + 1) % applications.length]}`;
 }
 
-function buildConfessionFromScripture(scriptureText: string, season: Season, seed: number): string {
+function buildConfessionFromScripture(
+  scriptureText: string,
+  season: Season,
+  seed: number
+): string {
   const { theme } = detectTheme(scriptureText);
 
   const themed: Record<string, string[]> = {
@@ -377,7 +397,7 @@ function prayerPool80_20(): string[] {
     "The Lord is giving you endurance without heaviness.\nYou will not quit or drift.\nIn Jesus’ name.",
     "God is settling your heart before you decide anything heavy.\nYou will move with peace, not pressure.\nIn Jesus’ name.",
 
-    // Intercessory (20% ish)
+    // Intercessory
     "May God quiet your thoughts and steady your heart.\nMay His peace guard you through this day.\nIn Jesus’ name.",
     "May the Lord guide your decisions without confusion.\nMay wisdom come with peace, not pressure.\nIn Jesus’ name.",
     "May God steady your steps as you move forward.\nMay clarity come one step at a time.\nIn Jesus’ name.",
@@ -501,14 +521,20 @@ export async function GET(req: Request) {
 
       const scripture_version = "KJV";
 
-      // Scripture-derived exhortation + confession
-      const exhortation = buildExhortationFromScripture(scriptureText, seed);
-      const exhortation_seasons = buildSeasonMap((s) => `${seasonOpening(s)} ${exhortation}`);
-  const opener = seasonOpening(s);
-  return `${opener} ${exhortation}`;
-});
+      // Build scripture-based exhortation core (no season opener)
+      const exhortation_core = buildExhortationCoreFromScripture(scriptureText, seed);
 
-      const faith_confession = buildConfessionFromScripture(scriptureText, "Preparation", seed);
+      // Store base exhortation and also season variants
+      const exhortation = exhortation_core;
+      const exhortation_seasons = buildSeasonMap(
+        (s) => `${seasonOpening(s)} ${exhortation_core}`
+      );
+
+      const faith_confession = buildConfessionFromScripture(
+        scriptureText,
+        "Preparation",
+        seed
+      );
       const faith_confession_seasons = buildSeasonMap((s) =>
         buildConfessionFromScripture(scriptureText, s, seed)
       );
