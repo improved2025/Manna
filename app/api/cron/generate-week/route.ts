@@ -199,47 +199,58 @@ function pickScriptureNoRepeat(params: {
   throw new Error("Scripture pool exhausted for 30-day no-repeat.");
 }
 
-// ===== NEW: Scripture-derived exhortation + confession (calm, explanatory) =====
+// ===== Scripture-derived exhortation + confession =====
 
 function detectTheme(text: string): {
-  theme: "peace" | "fear" | "trust" | "strength" | "wisdom" | "guidance" | "rest" | "love" | "endurance" | "general";
-  anchors: string[];
+  theme:
+    | "peace"
+    | "fear"
+    | "trust"
+    | "strength"
+    | "wisdom"
+    | "guidance"
+    | "rest"
+    | "love"
+    | "endurance"
+    | "general";
 } {
   const t = (text || "").toLowerCase();
 
   const has = (re: RegExp) => re.test(t);
 
-  if (has(/\b(fear|afraid|terrified)\b/)) return { theme: "fear", anchors: ["fear", "steadiness"] };
-  if (has(/\bpeace\b/) || has(/\bquiet\b/) || has(/\brest\b/)) return { theme: "peace", anchors: ["peace", "guard"] };
-  if (has(/\btrust\b/) || has(/\bfaith\b/) || has(/\bbelieve\b/)) return { theme: "trust", anchors: ["trust", "confidence"] };
-  if (has(/\bstrength\b/) || has(/\bstrong\b/) || has(/\brenew\b/) || has(/\bendure\b/)) return { theme: "strength", anchors: ["strength", "renewal"] };
-  if (has(/\bwisdom\b/) || has(/\bunderstanding\b/) || has(/\bguide\b/) || has(/\bdirect\b/)) return { theme: "wisdom", anchors: ["wisdom", "direction"] };
-  if (has(/\bpath\b/) || has(/\bway\b/) || has(/\blead\b/) || has(/\blight\b/)) return { theme: "guidance", anchors: ["guidance", "steps"] };
-  if (has(/\brest\b/) || has(/\bcome unto me\b/) || has(/\byoke\b/)) return { theme: "rest", anchors: ["rest", "ease"] };
-  if (has(/\blove\b/) || has(/\bperfect love\b/)) return { theme: "love", anchors: ["love", "freedom"] };
-  if (has(/\bwait\b/) || has(/\bpatient\b/) || has(/\bhope\b/)) return { theme: "endurance", anchors: ["patience", "hope"] };
+  if (has(/\b(fear|afraid|terrified)\b/)) return { theme: "fear" };
+  if (has(/\bpeace\b/) || has(/\bquiet\b/)) return { theme: "peace" };
+  if (has(/\btrust\b/) || has(/\bfaith\b/) || has(/\bbelieve\b/)) return { theme: "trust" };
+  if (has(/\bstrength\b/) || has(/\bstrong\b/) || has(/\brenew\b/) || has(/\bendure\b/))
+    return { theme: "strength" };
+  if (has(/\bwisdom\b/) || has(/\bunderstanding\b/) || has(/\bguide\b/) || has(/\bdirect\b/))
+    return { theme: "wisdom" };
+  if (has(/\bpath\b/) || has(/\bway\b/) || has(/\blead\b/) || has(/\blight\b/))
+    return { theme: "guidance" };
+  if (has(/\brest\b/) || has(/\bcome unto me\b/) || has(/\byoke\b/)) return { theme: "rest" };
+  if (has(/\blove\b/) || has(/\bperfect love\b/)) return { theme: "love" };
+  if (has(/\bwait\b/) || has(/\bpatient\b/) || has(/\bhope\b/)) return { theme: "endurance" };
 
-  return { theme: "general", anchors: ["truth", "steadiness"] };
+  return { theme: "general" };
 }
 
-function buildExhortationFromScripture(scriptureRef: string, scriptureText: string, seed: number): string {
+function buildExhortationFromScripture(scriptureText: string, seed: number): string {
   const { theme } = detectTheme(scriptureText);
 
-  // Short, explanatory lines. No hype. Scripture-first.
   const variants: Record<string, string[]> = {
     peace: [
-      "This Scripture is not asking you to manufacture peace. It is showing you where peace is found.",
-      "The point here is not noise reduction. It is heart stability that comes from God.",
-      "Peace in this passage is not avoidance. It is a guard over your mind and heart.",
+      "This Scripture is showing you where peace is found, not asking you to manufacture it.",
+      "Peace here is not avoidance. It is a guard over your mind and heart.",
+      "This passage leads you into steadiness. Peace becomes your anchor, not your mood.",
     ],
     fear: [
-      "This Scripture confronts fear at the root. It calls you back to God’s presence, not your own control.",
+      "This Scripture confronts fear at the root and calls you back to God’s presence.",
       "The emphasis here is not your bravery. It is God’s nearness and help.",
-      "Fear loses its power when you stop facing life alone.",
+      "Fear weakens when you stop facing life alone. This passage invites you to trust God’s support.",
     ],
     trust: [
       "This Scripture calls you to lean the weight of your life on God’s faithfulness.",
-      "Trust here is not passivity. It is choosing God’s way over anxious shortcuts.",
+      "Trust here is choosing God’s way over anxious shortcuts.",
       "This passage teaches you to rest your decisions in God’s character.",
     ],
     strength: [
@@ -274,15 +285,14 @@ function buildExhortationFromScripture(scriptureRef: string, scriptureText: stri
     ],
     general: [
       "This Scripture gives you something stable to stand on today.",
-      "The point is a steady walk with God, not a busy spiritual life.",
       "This passage calls you back to simple obedience and trust.",
+      "This Scripture points you to a steady walk with God, not a busy spiritual life.",
     ],
   };
 
   const list = variants[theme] || variants.general;
   const line = list[seed % list.length];
 
-  // Add one calm application sentence
   const applications = [
     "Carry it into your day by obeying one clear step, calmly.",
     "Let it settle in you before you respond to anything urgent.",
@@ -338,18 +348,18 @@ function buildConfessionFromScripture(scriptureText: string, season: Season, see
     ],
   };
 
-  const base = (themed[theme] || themed.general)[seed % (themed[theme] || themed.general).length];
+  const list = themed[theme] || themed.general;
+  const base = list[seed % list.length];
   const seasonal = confessionSeason(season);
 
-  // Keep it short and first-person, but clearly rooted in scripture + season
   return `${base} ${seasonal}`;
 }
 
-// ===== Prayer upgrade: prophetic voice (80/20) + 30-day no-repeat =====
+// ===== Prayer: prophetic voice (80/20) + 30-day no-repeat =====
 
 function prayerPool80_20(): string[] {
   return [
-    // ===== Declarative (prophetic tone) =====
+    // Declarative
     "Today, peace settles your mind and steadies your heart.\nYou will not be driven by fear or confusion.\nIn Jesus’ name.",
     "Grace is carrying you through this day with quiet strength.\nWhat felt heavy will not crush you.\nIn Jesus’ name.",
     "The Lord is giving you clarity for the next step.\nYou will not move in panic or pressure.\nIn Jesus’ name.",
@@ -366,30 +376,10 @@ function prayerPool80_20(): string[] {
     "Wisdom is being released to you for today.\nConfusion will not cling to your mind.\nIn Jesus’ name.",
     "The Lord is giving you endurance without heaviness.\nYou will not quit or drift.\nIn Jesus’ name.",
     "God is settling your heart before you decide anything heavy.\nYou will move with peace, not pressure.\nIn Jesus’ name.",
-    "You are being carried by God’s faithfulness today.\nYour strength will not fail you.\nIn Jesus’ name.",
-    "The Lord will keep you from overreacting.\nYou will respond with calm and strength.\nIn Jesus’ name.",
-    "Peace will be your anchor today.\nYour mind will remain guarded and clear.\nIn Jesus’ name.",
-    "God is opening the right path and closing distractions.\nYou will not waste your steps.\nIn Jesus’ name.",
-    "You will not be trapped in yesterday.\nGod is giving you clean focus for today.\nIn Jesus’ name.",
-    "The Lord is stabilizing your heart in this season.\nYou will not be moved by uncertainty.\nIn Jesus’ name.",
-    "God is placing courage in you that is quiet and firm.\nYou will stand without striving.\nIn Jesus’ name.",
-    "You will not carry this day alone.\nGod will help you in practical ways.\nIn Jesus’ name.",
-    "The Lord is protecting your peace.\nNoise will not steal what God is building in you.\nIn Jesus’ name.",
-    "God is giving you patience that is strong.\nWaiting will not weaken your faith.\nIn Jesus’ name.",
-    "Your heart will stay soft and steady today.\nBitterness and frustration will not rule you.\nIn Jesus’ name.",
-    "The Lord is refreshing your strength and renewing your focus.\nYou will not live drained.\nIn Jesus’ name.",
-    "You will not be driven by urgency.\nGod will lead you with clarity and calm.\nIn Jesus’ name.",
-    "God is restoring what has been worn down.\nYou will not lose heart.\nIn Jesus’ name.",
-    "The Lord will keep your steps ordered today.\nYou will not stumble into regret.\nIn Jesus’ name.",
-    "Peace will follow you into every room.\nGod’s presence will steady you in each moment.\nIn Jesus’ name.",
 
-    // ===== Intercessory (still varied) =====
+    // Intercessory (20% ish)
     "May God quiet your thoughts and steady your heart.\nMay His peace guard you through this day.\nIn Jesus’ name.",
-    "May the Lord strengthen you where you feel weak.\nMay His help meet you with calm clarity.\nIn Jesus’ name.",
-    "May God restore what has been strained and worn.\nMay hope rise again with steady peace.\nIn Jesus’ name.",
     "May the Lord guide your decisions without confusion.\nMay wisdom come with peace, not pressure.\nIn Jesus’ name.",
-    "May God heal what is hurting quietly within you.\nMay comfort and strength meet you today.\nIn Jesus’ name.",
-    "May the Lord protect your mind from anxious spirals.\nMay your heart rest in His care.\nIn Jesus’ name.",
     "May God steady your steps as you move forward.\nMay clarity come one step at a time.\nIn Jesus’ name.",
     "May the Lord renew your strength and refresh your focus.\nMay you finish today with peace.\nIn Jesus’ name.",
   ];
@@ -430,7 +420,6 @@ function pickPrayerNoRepeat(params: {
 
   for (let offset = 0; offset < pool.length; offset++) {
     const candidate = pool[(startIndex + offset) % pool.length].trim();
-
     if (recent.has(candidate)) continue;
     if (usedThisRun.has(candidate)) continue;
 
@@ -476,12 +465,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, inserted: 0, days: daykeys });
     }
 
-    // 30-day no-repeat scripture
+    // Scripture no-repeat
     const recentScriptures = await fetchRecentScriptureSet(supabase, 30);
     const usedThisRun = new Set<string>();
     const pool = scripturePool();
 
-    // Prayer: 30-day no-repeat + no repeats in same run
+    // Prayer no-repeat
     const recentPrayers = await fetchRecentPrayerSet(supabase, 30);
     const usedPrayersThisRun = new Set<string>();
     const prayerPool = prayerPool80_20();
@@ -501,23 +490,24 @@ export async function GET(req: Request) {
         usedThisRun,
       });
 
-      // Fetch KJV text once per scripture_ref (cached per run)
+      // KJV text (cached per run)
       let scripture_text = kjvCache.get(scripture_ref);
       if (!scripture_text) {
         const fetched = await fetchKjvText(scripture_ref);
         kjvCache.set(scripture_ref, fetched);
         scripture_text = fetched;
       }
+      const scriptureText = scripture_text as string;
 
       const scripture_version = "KJV";
 
-      // NEW: scripture-derived exhortation + confession
-      const exhortation = buildExhortationFromScripture(scripture_ref, scripture_text, seed);
+      // Scripture-derived exhortation + confession
+      const exhortation = buildExhortationFromScripture(scriptureText, seed);
       const exhortation_seasons = buildSeasonMap((s) => seasonOpening(s));
 
-      const faith_confession = buildConfessionFromScripture(scripture_text, "Preparation", seed);
+      const faith_confession = buildConfessionFromScripture(scriptureText, "Preparation", seed);
       const faith_confession_seasons = buildSeasonMap((s) =>
-        buildConfessionFromScripture(scripture_text, s, seed)
+        buildConfessionFromScripture(scriptureText, s, seed)
       );
 
       const prayer_for_you = pickPrayerNoRepeat({
@@ -532,7 +522,7 @@ export async function GET(req: Request) {
       rows.push({
         daykey: k,
         scripture_ref,
-        scripture_text,
+        scripture_text: scriptureText,
         scripture_version,
         exhortation,
         exhortation_seasons,
