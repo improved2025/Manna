@@ -14,6 +14,8 @@ type Season =
 type DailyRow = {
   daykey: string;
   scripture_ref: string;
+  scripture_text: string | null;
+  scripture_version: string | null;
   exhortation: string | null;
   exhortation_seasons: Record<string, string> | null;
   faith_confession: string | null;
@@ -111,7 +113,7 @@ export default function TodayPage() {
         const { data, error: qErr } = await supabase
           .from("daily_feeds")
           .select(
-            "daykey, scripture_ref, exhortation, exhortation_seasons, faith_confession, faith_confession_seasons, prayer_for_you, created_at"
+            "daykey, scripture_ref, scripture_text, scripture_version, exhortation, exhortation_seasons, faith_confession, faith_confession_seasons, prayer_for_you, created_at"
           )
           .eq("daykey", daykey)
           .maybeSingle();
@@ -209,11 +211,27 @@ export default function TodayPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <div className="text-xs font-medium text-slate-500">
-                  Scripture (NKJV)
+                  Scripture (KJV)
                 </div>
                 <div className="text-lg font-semibold text-slate-900">
                   {row.scripture_ref}
                 </div>
+
+                {row.scripture_text ? (
+                  <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+                    {row.scripture_text}
+                  </div>
+                ) : (
+                  <div className="mt-3 text-sm text-slate-600">
+                    Scripture text will appear once today’s content is generated.
+                  </div>
+                )}
+
+                {row.scripture_version ? (
+                  <div className="mt-2 text-xs text-slate-500">
+                    Text: {row.scripture_version}
+                  </div>
+                ) : null}
               </div>
 
               <div className="space-y-2">
@@ -265,17 +283,17 @@ export default function TodayPage() {
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Meditation (quiet, secondary) */}
           <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center">
-  <a
-  href="/meditation"
-  className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
->
-  MEDITATE
-</a>
+            <a
+              href="/meditation"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+            >
+              MEDITATE
+            </a>
 
-  <div className="mt-2 text-xs text-slate-600">
-    Take a quiet 15 minutes in a place of peace.
-  </div>
-</div>
+            <div className="mt-2 text-xs text-slate-600">
+              Take a quiet 15 minutes in a place of peace.
+            </div>
+          </div>
 
           {/* Surrender (existing CTA, stronger) */}
           <div className="order-2 sm:order-none">
