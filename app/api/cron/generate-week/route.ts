@@ -503,7 +503,10 @@ export async function GET(req: Request) {
 
       // Scripture-derived exhortation + confession
       const exhortation = buildExhortationFromScripture(scriptureText, seed);
-      const exhortation_seasons = buildSeasonMap((s) => seasonOpening(s));
+      const exhortation_seasons = buildSeasonMap((s) => {
+  const opener = seasonOpening(s);
+  return `${opener} ${exhortation}`;
+});
 
       const faith_confession = buildConfessionFromScripture(scriptureText, "Preparation", seed);
       const faith_confession_seasons = buildSeasonMap((s) =>
