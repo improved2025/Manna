@@ -1,46 +1,92 @@
-const CACHE_NAME = "manna-cache-v7";
+const CACHE_NAME = "manna-cache-v8";
 const OFFLINE_URL = "/offline";
 
-const CORE_ASSETS = [
-  "/",
-  "/welcome",
-  "/landing",
-  "/help",
-  "/surrender",
-  "/offline",
-  "/manifest.webmanifest",
-  "/icons/manna-icon-v2.png",
-];
-
+// Cache the offline page for sure (never fail the whole install because of one asset)
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      try {
+        await cache.add(new Request(OFFLINE_URL, { cache: "reload" }));
+      } catch (e) {
+        // If even this fails, offline cannot work — but don't crash install.
+        // We'll still activate and try runtime caching.
+      }
+    })()
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))
-    )
+    (async () => {
+      // Clean old caches
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)));
+
+      // Enable navigation preload (where supported)
+      if (self.registration.navigationPreload) {
+        await self.registration.navigationPreload.enable();
+      }
+
+      await self.clients.claim();
+    })()
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // ✅ Navigation requests (page loads)
-  if (event.request.mode === "navigate") {
+  const isNavigation = event.request.mode === "navigate";
+
+  if (isNavigation) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+      (async () => {
+        try {
+          // Use preload if available
+          const preload = await event.preloadResponse;
+          if (preload) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(event.request, preload.clone());
+            return preload;
+          }
+
+          // Try network
+          const network = await fetch(event.request);
+
+          // Cache successful navigations
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, network.clone());
+
+          return network;
+        } catch (err) {
+          // If offline, try cached page first
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+
+          // Final fallback: offline page
+          const offline = await caches.match(OFFLINE_URL);
+          return offline || new Response("Offline", { status: 503 });
+        }
+      })()
     );
     return;
   }
 
-  // ✅ Cache-first for everything else
+  // Non-navigation: cache-first, then network
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    (async () => {
+      const cached = await caches.match(event.request);
+      if (cached) return cached;
+
+      try {
+        const network = await fetch(event.request);
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(event.request, network.clone());
+        return network;
+      } catch {
+        return new Response("", { status: 504 });
+      }
+    })()
   );
 });
