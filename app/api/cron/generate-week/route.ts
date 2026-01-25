@@ -285,10 +285,13 @@ export async function GET(req: Request) {
 
       // Fetch KJV text once per scripture_ref (cached per run)
       let scripture_text = kjvCache.get(scripture_ref);
-      if (!scripture_text) {
-        scripture_text = await fetchKjvText(scripture_ref);
-        kjvCache.set(scripture_ref, scripture_text);
-      }
+
+if (!scripture_text) {
+  const fetched = await fetchKjvText(scripture_ref);
+  kjvCache.set(scripture_ref, fetched);
+  scripture_text = fetched;
+}
+
 
       const scripture_version = "KJV";
 
