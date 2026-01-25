@@ -166,7 +166,6 @@ function buildSeasonMap(fn: (season: Season) => string): Record<string, string> 
 
 // ===== KJV scripture text fetch (server-side, during cron only) =====
 async function fetchKjvText(scriptureRef: string) {
-  // bible-api expects URL encoded passage and supports translation=kjv
   const url = `https://bible-api.com/${encodeURIComponent(scriptureRef)}?translation=kjv`;
 
   const res = await fetch(url, { cache: "no-store" });
@@ -175,16 +174,16 @@ async function fetchKjvText(scriptureRef: string) {
   }
 
   const json: any = await res.json();
-
-  // Many responses include "text" with verse numbers/newlines.
   const text = (json?.text || "").trim();
   if (!text) throw new Error(`Empty KJV text for ${scriptureRef}`);
 
-  // Clean up excessive whitespace
   return text.replace(/\n{3,}/g, "\n\n").trim();
 }
 
-async function fetchRecentScriptureSet(supabase: any, daysBack: number): Promise<Set<string>> {
+async function fetchRecentScriptureSet(
+  supabase: any,
+  daysBack: number
+): Promise<Set<string>> {
   const start = addDaysUTC(new Date(), -daysBack);
   const startKey = dayKeyUTC(start);
 
@@ -194,7 +193,8 @@ async function fetchRecentScriptureSet(supabase: any, daysBack: number): Promise
     .gte("daykey", startKey)
     .order("daykey", { ascending: false });
 
-  if (error) throw new Error(`Failed to fetch recent scripture refs: ${error.message}`);
+  if (error)
+    throw new Error(`Failed to fetch recent scripture refs: ${error.message}`);
 
   const set = new Set<string>();
   for (const row of data || []) {
@@ -226,6 +226,103 @@ function pickScriptureNoRepeat(params: {
   }
 
   throw new Error("Scripture pool exhausted for 30-day no-repeat.");
+}
+
+// ===== Prayer upgrade: prophetic voice (80/20) + 30-day no-repeat =====
+
+function prayerPool80_20(): string[] {
+  // First chunk = declarative (prophetic tone), last chunk = intercessory.
+  return [
+    // ===== Declarative (prophetic tone) =====
+    "Today, peace settles your mind and steadies your heart.\nYou will not be driven by fear or confusion.\nIn Jesus’ name.",
+    "Grace is carrying you through this day with quiet strength.\nWhat felt heavy will not crush you.\nIn Jesus’ name.",
+    "The Lord is giving you clarity for the next step.\nYou will not move in panic or pressure.\nIn Jesus’ name.",
+    "Strength is rising in you where you felt worn down.\nYou will finish this day with peace.\nIn Jesus’ name.",
+    "God is ordering your thoughts and calming your inner life.\nYou will not be ruled by anxiety.\nIn Jesus’ name.",
+    "You are being helped today, even in small moments.\nGod’s hand will steady you and guide you.\nIn Jesus’ name.",
+    "Peace will guard you in conversations and decisions.\nYour words will be wise and calm.\nIn Jesus’ name.",
+    "The Lord is restoring steadiness to your emotions.\nYou will not be unstable or overwhelmed.\nIn Jesus’ name.",
+    "God is strengthening your obedience without strain.\nYou will do the next right thing with calm courage.\nIn Jesus’ name.",
+    "You will not be pulled off course today.\nGod will keep you focused and protected.\nIn Jesus’ name.",
+    "The Lord is renewing your hope quietly.\nDiscouragement will not have the final word.\nIn Jesus’ name.",
+    "God is healing what has been stretched and strained.\nYou will breathe again with peace.\nIn Jesus’ name.",
+    "You are not behind when God is leading.\nHe will guide your pace and keep you steady.\nIn Jesus’ name.",
+    "Wisdom is being released to you for today.\nConfusion will not cling to your mind.\nIn Jesus’ name.",
+    "The Lord is giving you endurance without heaviness.\nYou will not quit or drift.\nIn Jesus’ name.",
+    "God is settling your heart before you decide anything heavy.\nYou will move with peace, not pressure.\nIn Jesus’ name.",
+    "You are being carried by God’s faithfulness today.\nYour strength will not fail you.\nIn Jesus’ name.",
+    "The Lord will keep you from overreacting.\nYou will respond with calm and strength.\nIn Jesus’ name.",
+    "Peace will be your anchor today.\nYour mind will remain guarded and clear.\nIn Jesus’ name.",
+    "God is opening the right path and closing distractions.\nYou will not waste your steps.\nIn Jesus’ name.",
+    "You will not be trapped in yesterday.\nGod is giving you clean focus for today.\nIn Jesus’ name.",
+    "The Lord is stabilizing your heart in this season.\nYou will not be moved by uncertainty.\nIn Jesus’ name.",
+    "God is placing courage in you that is quiet and firm.\nYou will stand without striving.\nIn Jesus’ name.",
+    "You will not carry this day alone.\nGod will help you in practical ways.\nIn Jesus’ name.",
+    "The Lord is protecting your peace.\nNoise will not steal what God is building in you.\nIn Jesus’ name.",
+    "God is giving you patience that is strong.\nWaiting will not weaken your faith.\nIn Jesus’ name.",
+    "Your heart will stay soft and steady today.\nBitterness and frustration will not rule you.\nIn Jesus’ name.",
+    "The Lord is refreshing your strength and renewing your focus.\nYou will not live drained.\nIn Jesus’ name.",
+    "You will not be driven by urgency.\nGod will lead you with clarity and calm.\nIn Jesus’ name.",
+    "God is restoring what has been worn down.\nYou will not lose heart.\nIn Jesus’ name.",
+    "The Lord will keep your steps ordered today.\nYou will not stumble into regret.\nIn Jesus’ name.",
+    "Peace will follow you into every room.\nGod’s presence will steady you in each moment.\nIn Jesus’ name.",
+
+    // ===== Intercessory (still varied, not formulaic) =====
+    "May God quiet your thoughts and steady your heart.\nMay His peace guard you through this day.\nIn Jesus’ name.",
+    "May the Lord strengthen you where you feel weak.\nMay His help meet you with calm clarity.\nIn Jesus’ name.",
+    "May God restore what has been strained and worn.\nMay hope rise again with steady peace.\nIn Jesus’ name.",
+    "May the Lord guide your decisions without confusion.\nMay wisdom come with peace, not pressure.\nIn Jesus’ name.",
+    "May God heal what is hurting quietly within you.\nMay comfort and strength meet you today.\nIn Jesus’ name.",
+    "May the Lord protect your mind from anxious spirals.\nMay your heart rest in His care.\nIn Jesus’ name.",
+    "May God steady your steps as you move forward.\nMay clarity come one step at a time.\nIn Jesus’ name.",
+    "May the Lord renew your strength and refresh your focus.\nMay you finish today with peace.\nIn Jesus’ name.",
+  ];
+}
+
+async function fetchRecentPrayerSet(
+  supabase: any,
+  daysBack: number
+): Promise<Set<string>> {
+  const start = addDaysUTC(new Date(), -daysBack);
+  const startKey = dayKeyUTC(start);
+
+  const { data, error } = await supabase
+    .from("daily_feeds")
+    .select("prayer_for_you, daykey")
+    .gte("daykey", startKey)
+    .order("daykey", { ascending: false });
+
+  if (error) throw new Error(`Failed to fetch recent prayers: ${error.message}`);
+
+  const set = new Set<string>();
+  for (const row of data || []) {
+    if (row?.prayer_for_you) set.add((row.prayer_for_you || "").trim());
+  }
+  return set;
+}
+
+function pickPrayerNoRepeat(params: {
+  daykey: string;
+  pool: string[];
+  recent: Set<string>;
+  usedThisRun: Set<string>;
+}) {
+  const { daykey, pool, recent, usedThisRun } = params;
+
+  const seed = hashStringToInt(daykey);
+  const startIndex = seed % pool.length;
+
+  for (let offset = 0; offset < pool.length; offset++) {
+    const candidate = pool[(startIndex + offset) % pool.length].trim();
+
+    if (recent.has(candidate)) continue;
+    if (usedThisRun.has(candidate)) continue;
+
+    usedThisRun.add(candidate);
+    return candidate;
+  }
+
+  throw new Error("Prayer pool exhausted: cannot satisfy 30-day no-repeat.");
 }
 
 export async function GET(req: Request) {
@@ -268,6 +365,11 @@ export async function GET(req: Request) {
     const usedThisRun = new Set<string>();
     const pool = scripturePool();
 
+    // Prayer: 30-day no-repeat + no repeats in same run
+    const recentPrayers = await fetchRecentPrayerSet(supabase, 30);
+    const usedPrayersThisRun = new Set<string>();
+    const prayerPool = prayerPool80_20();
+
     // Cache bible-api lookups within this cron run
     const kjvCache = new Map<string, string>();
 
@@ -285,13 +387,11 @@ export async function GET(req: Request) {
 
       // Fetch KJV text once per scripture_ref (cached per run)
       let scripture_text = kjvCache.get(scripture_ref);
-
-if (!scripture_text) {
-  const fetched = await fetchKjvText(scripture_ref);
-  kjvCache.set(scripture_ref, fetched);
-  scripture_text = fetched;
-}
-
+      if (!scripture_text) {
+        const fetched = await fetchKjvText(scripture_ref);
+        kjvCache.set(scripture_ref, fetched);
+        scripture_text = fetched;
+      }
 
       const scripture_version = "KJV";
 
@@ -301,9 +401,13 @@ if (!scripture_text) {
       const faith_confession = confessionBase(seed);
       const faith_confession_seasons = buildSeasonMap((s) => confessionSeason(s, seed));
 
-      // Keep your existing prayer model for now (we’ll upgrade voice next)
-      const prayer_for_you =
-        "May God settle your heart and make His direction clear.\nMay He strengthen you for today.\nIn Jesus’ name.";
+      const prayer_for_you = pickPrayerNoRepeat({
+        daykey: k,
+        pool: prayerPool,
+        recent: recentPrayers,
+        usedThisRun: usedPrayersThisRun,
+      });
+
       const prayer = prayer_for_you;
 
       rows.push({
