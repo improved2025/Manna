@@ -90,3 +90,38 @@ self.addEventListener("fetch", (event) => {
     })()
   );
 });
+
+// -----------------------------
+// PUSH NOTIFICATIONS (MANNA)
+// -----------------------------
+self.addEventListener("push", (event) => {
+  // Locked copy
+  const title = "MANNA";
+  const body = "Today’s manna is ready.";
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      tag: "manna-daily",     // collapse duplicates
+      renotify: false,        // no repeated buzzing
+      data: { url: "/today" } // where to open
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/today";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if ("focus" in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(url);
+    })
+  );
+});
