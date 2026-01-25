@@ -99,22 +99,6 @@ function scripturePool(): string[] {
   ];
 }
 
-function baseReflection(i: number): string {
-  const lines = [
-    "God does not rush you. He leads you.",
-    "Peace grows when trust becomes your default response.",
-    "Obedience is often quiet, but it is never small.",
-    "God can strengthen you without changing the room you’re in.",
-    "What God is forming in you matters as much as what He is doing for you.",
-    "Grace gives you steadiness, not performance pressure.",
-    "You are not carried by your feelings. You are carried by God.",
-    "Your pace can be calm and still be obedient.",
-    "Let your heart settle before you decide anything heavy.",
-    "God’s peace is strong enough to guard your mind.",
-  ];
-  return lines[i % lines.length];
-}
-
 function seasonOpening(season: Season): string {
   switch (season) {
     case "Preparation":
@@ -130,18 +114,7 @@ function seasonOpening(season: Season): string {
   }
 }
 
-function confessionBase(i: number): string {
-  const lines = [
-    "I walk by faith, not by sight.",
-    "I am kept by the peace of God.",
-    "I choose trust over fear today.",
-    "I am guided by God’s wisdom and timing.",
-    "I am strengthened to obey with a willing heart.",
-  ];
-  return lines[i % lines.length];
-}
-
-function confessionSeason(season: Season, i: number): string {
+function confessionSeason(season: Season): string {
   switch (season) {
     case "Preparation":
       return "I receive God’s shaping, and I will not resist His process.";
@@ -153,8 +126,6 @@ function confessionSeason(season: Season, i: number): string {
       return "I move forward with God, and I will not be unstable.";
     case "Renewal":
       return "I receive fresh strength, and I will walk in newness today.";
-    default:
-      return confessionBase(i);
   }
 }
 
@@ -228,10 +199,155 @@ function pickScriptureNoRepeat(params: {
   throw new Error("Scripture pool exhausted for 30-day no-repeat.");
 }
 
+// ===== NEW: Scripture-derived exhortation + confession (calm, explanatory) =====
+
+function detectTheme(text: string): {
+  theme: "peace" | "fear" | "trust" | "strength" | "wisdom" | "guidance" | "rest" | "love" | "endurance" | "general";
+  anchors: string[];
+} {
+  const t = (text || "").toLowerCase();
+
+  const has = (re: RegExp) => re.test(t);
+
+  if (has(/\b(fear|afraid|terrified)\b/)) return { theme: "fear", anchors: ["fear", "steadiness"] };
+  if (has(/\bpeace\b/) || has(/\bquiet\b/) || has(/\brest\b/)) return { theme: "peace", anchors: ["peace", "guard"] };
+  if (has(/\btrust\b/) || has(/\bfaith\b/) || has(/\bbelieve\b/)) return { theme: "trust", anchors: ["trust", "confidence"] };
+  if (has(/\bstrength\b/) || has(/\bstrong\b/) || has(/\brenew\b/) || has(/\bendure\b/)) return { theme: "strength", anchors: ["strength", "renewal"] };
+  if (has(/\bwisdom\b/) || has(/\bunderstanding\b/) || has(/\bguide\b/) || has(/\bdirect\b/)) return { theme: "wisdom", anchors: ["wisdom", "direction"] };
+  if (has(/\bpath\b/) || has(/\bway\b/) || has(/\blead\b/) || has(/\blight\b/)) return { theme: "guidance", anchors: ["guidance", "steps"] };
+  if (has(/\brest\b/) || has(/\bcome unto me\b/) || has(/\byoke\b/)) return { theme: "rest", anchors: ["rest", "ease"] };
+  if (has(/\blove\b/) || has(/\bperfect love\b/)) return { theme: "love", anchors: ["love", "freedom"] };
+  if (has(/\bwait\b/) || has(/\bpatient\b/) || has(/\bhope\b/)) return { theme: "endurance", anchors: ["patience", "hope"] };
+
+  return { theme: "general", anchors: ["truth", "steadiness"] };
+}
+
+function buildExhortationFromScripture(scriptureRef: string, scriptureText: string, seed: number): string {
+  const { theme } = detectTheme(scriptureText);
+
+  // Short, explanatory lines. No hype. Scripture-first.
+  const variants: Record<string, string[]> = {
+    peace: [
+      "This Scripture is not asking you to manufacture peace. It is showing you where peace is found.",
+      "The point here is not noise reduction. It is heart stability that comes from God.",
+      "Peace in this passage is not avoidance. It is a guard over your mind and heart.",
+    ],
+    fear: [
+      "This Scripture confronts fear at the root. It calls you back to God’s presence, not your own control.",
+      "The emphasis here is not your bravery. It is God’s nearness and help.",
+      "Fear loses its power when you stop facing life alone.",
+    ],
+    trust: [
+      "This Scripture calls you to lean the weight of your life on God’s faithfulness.",
+      "Trust here is not passivity. It is choosing God’s way over anxious shortcuts.",
+      "This passage teaches you to rest your decisions in God’s character.",
+    ],
+    strength: [
+      "This Scripture teaches that strength is received, not forced.",
+      "The point is not pushing harder. It is being renewed by God.",
+      "Strength here is steady endurance, not emotional intensity.",
+    ],
+    wisdom: [
+      "This Scripture shows you that clarity comes from God, not from rushing.",
+      "Wisdom here is practical. It shapes your next step, not just your thoughts.",
+      "This passage teaches you to ask and receive direction without panic.",
+    ],
+    guidance: [
+      "This Scripture is about direction. God leads step by step, not all at once.",
+      "Guidance here is steady and practical. It keeps you from drifting.",
+      "This passage reminds you that God can direct your steps with clarity.",
+    ],
+    rest: [
+      "This Scripture is an invitation into rest, not a demand for performance.",
+      "The point here is relief. God’s yoke is not crushing.",
+      "This passage teaches you to come to God before you collapse under weight.",
+    ],
+    love: [
+      "This Scripture anchors you in love that drives out fear, not love that flatters you.",
+      "The point is freedom. Love stabilizes the heart and clears the mind.",
+      "This passage teaches you that love is a foundation, not a feeling you chase.",
+    ],
+    endurance: [
+      "This Scripture teaches you how to wait without weakening inside.",
+      "The point is steady hope. Waiting is not wasted when God is leading.",
+      "This passage helps you hold the line with patience and trust.",
+    ],
+    general: [
+      "This Scripture gives you something stable to stand on today.",
+      "The point is a steady walk with God, not a busy spiritual life.",
+      "This passage calls you back to simple obedience and trust.",
+    ],
+  };
+
+  const list = variants[theme] || variants.general;
+  const line = list[seed % list.length];
+
+  // Add one calm application sentence
+  const applications = [
+    "Carry it into your day by obeying one clear step, calmly.",
+    "Let it settle in you before you respond to anything urgent.",
+    "Take it seriously, but take it quietly. God is leading you.",
+  ];
+
+  return `${line} ${applications[(seed + 1) % applications.length]}`;
+}
+
+function buildConfessionFromScripture(scriptureText: string, season: Season, seed: number): string {
+  const { theme } = detectTheme(scriptureText);
+
+  const themed: Record<string, string[]> = {
+    peace: [
+      "I receive the peace of God, and my mind is guarded today.",
+      "I will not be pulled into anxiety. God’s peace rules my heart.",
+    ],
+    fear: [
+      "I will not fear. God is with me and helps me today.",
+      "Fear will not drive my decisions. God strengthens and upholds me.",
+    ],
+    trust: [
+      "I trust God with my steps, and I will not rush ahead of Him.",
+      "I lean on God’s faithfulness, and I will not drift into worry.",
+    ],
+    strength: [
+      "I receive strength from God, and I will not collapse under pressure.",
+      "God renews my strength today, and I will finish well.",
+    ],
+    wisdom: [
+      "God gives me wisdom for today, and I will not be confused.",
+      "I receive clear direction, and I will not move in panic.",
+    ],
+    guidance: [
+      "God directs my steps, and I will not be misled.",
+      "The Lord leads me clearly, and I walk forward with peace.",
+    ],
+    rest: [
+      "I come to God for rest, and I will not carry heavy burdens alone.",
+      "I receive relief from God, and my heart is settled today.",
+    ],
+    love: [
+      "God’s love anchors me, and fear loses its hold on me.",
+      "I live from God’s love, and my heart remains steady.",
+    ],
+    endurance: [
+      "I wait with trust, and I will not grow weary.",
+      "My hope stays firm. God is working even while I wait.",
+    ],
+    general: [
+      "I walk with God today, steady and obedient.",
+      "I will not be distracted. I stay aligned with God’s truth.",
+    ],
+  };
+
+  const base = (themed[theme] || themed.general)[seed % (themed[theme] || themed.general).length];
+  const seasonal = confessionSeason(season);
+
+  // Keep it short and first-person, but clearly rooted in scripture + season
+  return `${base} ${seasonal}`;
+}
+
 // ===== Prayer upgrade: prophetic voice (80/20) + 30-day no-repeat =====
 
 function prayerPool80_20(): string[] {
-  // First chunk = declarative (prophetic tone), last chunk = intercessory.
   return [
     // ===== Declarative (prophetic tone) =====
     "Today, peace settles your mind and steadies your heart.\nYou will not be driven by fear or confusion.\nIn Jesus’ name.",
@@ -267,7 +383,7 @@ function prayerPool80_20(): string[] {
     "The Lord will keep your steps ordered today.\nYou will not stumble into regret.\nIn Jesus’ name.",
     "Peace will follow you into every room.\nGod’s presence will steady you in each moment.\nIn Jesus’ name.",
 
-    // ===== Intercessory (still varied, not formulaic) =====
+    // ===== Intercessory (still varied) =====
     "May God quiet your thoughts and steady your heart.\nMay His peace guard you through this day.\nIn Jesus’ name.",
     "May the Lord strengthen you where you feel weak.\nMay His help meet you with calm clarity.\nIn Jesus’ name.",
     "May God restore what has been strained and worn.\nMay hope rise again with steady peace.\nIn Jesus’ name.",
@@ -395,11 +511,14 @@ export async function GET(req: Request) {
 
       const scripture_version = "KJV";
 
-      const exhortation = baseReflection(seed);
+      // NEW: scripture-derived exhortation + confession
+      const exhortation = buildExhortationFromScripture(scripture_ref, scripture_text, seed);
       const exhortation_seasons = buildSeasonMap((s) => seasonOpening(s));
 
-      const faith_confession = confessionBase(seed);
-      const faith_confession_seasons = buildSeasonMap((s) => confessionSeason(s, seed));
+      const faith_confession = buildConfessionFromScripture(scripture_text, "Preparation", seed);
+      const faith_confession_seasons = buildSeasonMap((s) =>
+        buildConfessionFromScripture(scripture_text, s, seed)
+      );
 
       const prayer_for_you = pickPrayerNoRepeat({
         daykey: k,
