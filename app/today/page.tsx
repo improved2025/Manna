@@ -173,7 +173,7 @@ export default function TodayPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Today’s Devotional
         </h1>
-        <p className="text-sm text-slate-700">
+        <p className="text-base text-slate-700">
           Season: <span className="font-medium text-slate-900">{season}</span>
         </p>
 
