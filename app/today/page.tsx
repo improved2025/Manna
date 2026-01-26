@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import SurrenderCta from "@/components/SurrenderCta";
+import NotificationSoftPrompt from "@/components/NotificationSoftPrompt";
 
 type Season =
   | "Preparation"
@@ -301,6 +302,9 @@ export default function TodayPage() {
           </div>
         </div>
       </section>
+
+      {/* Notification soft prompt (Step 1: UI + timing only) */}
+      <NotificationSoftPrompt delayMs={6000} cooldownDays={4} />
     </main>
   );
 }
