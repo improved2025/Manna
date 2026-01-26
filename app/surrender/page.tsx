@@ -21,13 +21,13 @@ export default function SurrenderPage() {
             <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
               Matthew 11:28 (NKJV)
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-800">
+            <p className="mt-4 text-base leading-relaxed text-slate-800">
               “Come to Me, all you who labor and are heavy laden, and I will give you rest.”
             </p>
           </div>
 
           {/* Reflection */}
-          <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+          <div className="space-y-3 text-base leading-7 text-slate-700">
             <p>You don’t have to carry this alone anymore.</p>
             <p>Surrender isn’t weakness. It’s trust.</p>
             <p>
@@ -45,11 +45,11 @@ export default function SurrenderPage() {
             <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
               Prayer
             </div>
-            <p className="mt-2 text-sm italic text-slate-600">
+            <p className="mt-2 text-base italic text-slate-600">
               You may pray this aloud if you’re able.
             </p>
 
-            <div className="mt-5 whitespace-pre-line rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm leading-relaxed text-slate-800">
+            <div className="mt-5 whitespace-pre-line rounded-xl border border-slate-200 bg-slate-50 p-6 text-base leading-7 text-slate-800">
               God,
               {"\n"}I come to You just as I am.
               {"\n"}I’ve tried to carry life on my own, and I’m tired.
@@ -71,7 +71,7 @@ export default function SurrenderPage() {
           </div>
 
           {/* Affirmation */}
-          <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+          <div className="space-y-3 text-base leading-7 text-slate-700">
             <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
               Affirmation
             </div>
@@ -83,7 +83,7 @@ export default function SurrenderPage() {
           </div>
 
           {/* What's Next */}
-          <div className="space-y-4 text-sm leading-relaxed text-slate-700">
+          <div className="space-y-4 text-base leading-7 text-slate-700">
             <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
               What’s next
             </div>
