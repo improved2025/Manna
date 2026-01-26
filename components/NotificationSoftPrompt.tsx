@@ -3,23 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 
 const LS = {
-  enabled: "manna_notif_enabled",            // "true"
-  denied: "manna_notif_denied",              // "true"
-  cooldownUntil: "manna_notif_cooldown_until" // number (ms)
+  enabled: "manna_notif_enabled", // "true"
+  denied: "manna_notif_denied", // "true"
+  cooldownUntil: "manna_notif_cooldown_until", // number (ms)
 };
 
 type Props = {
-  delayMs?: number;          // default 6000
-  cooldownDays?: number;     // default 4 (your 3–5 day window)
-  onAllow?: () => void;      // Step 2 wires this
-  onNotNow?: () => void;     // Step 2 optional
+  delayMs?: number; // default 6000
+  cooldownDays?: number; // default 4 (your 3–5 day window)
+  onAllow?: () => void; // optional callback after successful enable
+  onNotNow?: () => void; // optional
 };
 
 export default function NotificationSoftPrompt({
   delayMs = 6000,
   cooldownDays = 4,
   onAllow,
-  onNotNow
+  onNotNow,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -62,9 +62,63 @@ export default function NotificationSoftPrompt({
     close();
   };
 
-  const handleAllow = () => {
-    onAllow?.(); // Step 2 will request permission + subscribe
-    close();
+  const handleAllow = async () => {
+    try {
+      // If notifications are not supported, do nothing (silence > breaking trust)
+      if (!("Notification" in window)) return;
+
+      const permission = await Notification.requestPermission();
+
+      if (permission !== "granted") {
+        localStorage.setItem(LS.denied, "true");
+        return;
+      }
+
+      if (!("serviceWorker" in navigator)) return;
+
+      const reg = await navigator.serviceWorker.ready;
+
+      const pkRes = await fetch("/api/push/public-key");
+      const pkJson = await pkRes.json();
+      const publicKey: string | undefined = pkJson?.publicKey;
+
+      if (!publicKey) return;
+
+      const urlBase64ToUint8Array = (base64String: string) => {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding)
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+        const raw = atob(base64);
+        const output = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; ++i) output[i] = raw.charCodeAt(i);
+        return output;
+      };
+
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+
+      const saveRes = await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription }),
+      });
+
+      const saved = await saveRes.json();
+
+      if (saved?.ok === true) {
+        localStorage.setItem(LS.enabled, "true");
+        localStorage.removeItem(LS.denied);
+        localStorage.removeItem(LS.cooldownUntil);
+        onAllow?.();
+      }
+    } catch {
+      // silence > breaking trust
+    } finally {
+      close();
+    }
   };
 
   if (!open) return null;
