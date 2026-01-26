@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { EMOTIONAL_STATES } from "@/content/emotional-states";
 import SurrenderCta from "@/components/SurrenderCta";
 
@@ -28,6 +31,7 @@ function chipStyle(state: string) {
 }
 
 export default function HelpPage() {
+  const pathname = usePathname();
   const states = Object.keys(EMOTIONAL_STATES);
 
   return (
@@ -40,30 +44,37 @@ export default function HelpPage() {
         Choose what best describes where you are. You don’t have to explain it.
       </p>
 
-      {/* Slightly larger, safer mobile-friendly tabs */}
       <div className="mt-8 flex flex-wrap gap-4">
-        {states.map((state) => (
-          <Link
-            key={state}
-            href={`/help/${state}`}
-            className={[
-              "inline-flex items-center justify-center",
-              "rounded-full border",
-              "px-8 py-4",
-              "text-lg font-semibold",
-              "shadow-sm",
-              "transition",
-              "hover:shadow-md",
-              "active:translate-y-[1px] active:shadow-sm",
-              chipStyle(state),
-            ].join(" ")}
-          >
-            {toLabel(state)}
-          </Link>
-        ))}
+        {states.map((state) => {
+          const href = `/help/${state}`;
+          const isActive = pathname === href;
+
+          return (
+            <Link
+              key={state}
+              href={href}
+              aria-current={isActive ? "page" : undefined}
+              className={[
+                "inline-flex items-center justify-center",
+                "rounded-full border",
+                "px-8 py-4",
+                "text-lg font-semibold",
+                "shadow-sm",
+                "transition",
+                "hover:shadow-md",
+                "active:translate-y-[1px] active:shadow-sm",
+                chipStyle(state),
+                isActive
+                  ? "ring-2 ring-slate-300 ring-offset-2 ring-offset-white"
+                  : "",
+              ].join(" ")}
+            >
+              {toLabel(state)}
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Surrender CTA */}
       <SurrenderCta />
 
       <div className="mt-12">
