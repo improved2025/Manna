@@ -40,7 +40,7 @@ export default function HelpPage() {
         Choose what best describes where you are. You don’t have to explain it.
       </p>
 
-      {/* Bigger, more "popping" tabs */}
+      {/* Slightly larger, safer mobile-friendly tabs */}
       <div className="mt-8 flex flex-wrap gap-4">
         {states.map((state) => (
           <Link
@@ -49,8 +49,8 @@ export default function HelpPage() {
             className={[
               "inline-flex items-center justify-center",
               "rounded-full border",
-              "px-7 py-4",
-              "text-base font-semibold",
+              "px-8 py-4",
+              "text-lg font-semibold",
               "shadow-sm",
               "transition",
               "hover:shadow-md",
@@ -63,7 +63,7 @@ export default function HelpPage() {
         ))}
       </div>
 
-      {/* Add Surrender CTA at bottom */}
+      {/* Surrender CTA */}
       <SurrenderCta />
 
       <div className="mt-12">
