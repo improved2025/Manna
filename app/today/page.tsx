@@ -236,7 +236,7 @@ export default function TodayPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">
+                <div className="text-sm font-semibold text-slate-800">
                   Reflection
                 </div>
                 <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
@@ -245,7 +245,7 @@ export default function TodayPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">
+                <div className="text-sm font-semibold text-slate-800">
                   Faith Confession
                 </div>
                 <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
@@ -254,7 +254,7 @@ export default function TodayPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">
+                <div className="text-sm font-semibold text-slate-800">
                   Prayer for You
                 </div>
                 <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
