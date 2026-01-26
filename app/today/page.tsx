@@ -248,7 +248,7 @@ export default function TodayPage() {
                 <div className="text-xs font-medium text-slate-500">
                   Faith Confession
                 </div>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+                <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
                   {confessionText}
                 </div>
               </div>
