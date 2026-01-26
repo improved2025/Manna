@@ -219,7 +219,7 @@ export default function TodayPage() {
                 </div>
 
                 {row.scripture_text ? (
-                  <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+                  <div className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
                     {row.scripture_text}
                   </div>
                 ) : (
