@@ -108,12 +108,13 @@ export default function NotificationSoftPrompt({
 
       const saved = await saveRes.json();
 
-      if (saved?.ok === true) {
-        localStorage.setItem(LS.enabled, "true");
-        localStorage.removeItem(LS.denied);
-        localStorage.removeItem(LS.cooldownUntil);
-        onAllow?.();
-      }
+    if (saved?.ok === true) {
+  localStorage.setItem(LS.enabled, "true");
+  console.log("manna_notif_enabled set");
+  localStorage.removeItem(LS.denied);
+  localStorage.removeItem(LS.cooldownUntil);
+  onAllow?.();
+}
     } catch {
       // silence > breaking trust
     } finally {
