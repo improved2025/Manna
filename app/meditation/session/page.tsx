@@ -107,8 +107,7 @@ export default function MeditationSessionPage() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-         backgroundImage: "url(/images/ocean.jpg)",
-
+          backgroundImage: "url(/images/ocean.jpg)",
         }}
       />
       <div className="absolute inset-0 bg-black/55" />
@@ -117,13 +116,13 @@ export default function MeditationSessionPage() {
         <div className="w-full max-w-md text-center text-white">
           {!started ? (
             <>
-              <p className="text-sm text-white/80">Settle in.</p>
+              <p className="text-base text-white/85">Settle in.</p>
 
               <h1 className="mt-3 text-3xl font-semibold tracking-tight">
                 Breathe. Be still.
               </h1>
 
-              <p className="mt-3 text-base text-white/80 leading-relaxed">
+              <p className="mt-3 text-base leading-relaxed text-white/85">
                 When you’re ready, begin the 15-minute session.
               </p>
 
@@ -146,14 +145,14 @@ export default function MeditationSessionPage() {
             </>
           ) : (
             <>
-              <p className="text-sm text-white/80">Stay here.</p>
+              <p className="text-base text-white/85">Stay here.</p>
 
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
                 Breathe. Be still.
               </h2>
 
-              {/* Tiny countdown (subtle) */}
-              <p className="mt-6 text-sm text-white/70">{timeLabel}</p>
+              {/* Countdown (still subtle, but readable) */}
+              <p className="mt-6 text-base text-white/70">{timeLabel}</p>
 
               <button
                 onClick={() => {
@@ -166,7 +165,7 @@ export default function MeditationSessionPage() {
               </button>
 
               {secondsLeft === 0 && (
-                <p className="mt-6 text-sm text-white/80">
+                <p className="mt-6 text-base text-white/85">
                   Take a moment… returning to Today.
                 </p>
               )}

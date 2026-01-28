@@ -7,7 +7,7 @@ export default function MeditationEntryPage() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-         backgroundImage: "url(/images/ocean.jpg)",
+          backgroundImage: "url(/images/ocean.jpg)",
         }}
       />
 
@@ -17,7 +17,7 @@ export default function MeditationEntryPage() {
       {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center text-white">
-          <p className="text-sm tracking-wide text-white/80">
+          <p className="text-base tracking-wide text-white/85">
             You are entering a place of peace.
           </p>
 
@@ -25,7 +25,7 @@ export default function MeditationEntryPage() {
             Breathe. Be still.
           </h1>
 
-          <p className="mt-3 text-base text-white/80 leading-relaxed">
+          <p className="mt-3 text-base leading-relaxed text-white/85">
             Take a moment. Let your mind settle.
           </p>
 
