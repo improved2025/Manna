@@ -169,7 +169,9 @@ export default function TodayPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
       <header className="space-y-2">
-        <div className="text-xs text-slate-500">MANNA • {daykey}</div>
+        <div className="text-sm font-medium text-slate-600">
+          MANNA • {daykey}
+        </div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Today’s Devotional
         </h1>
@@ -268,13 +270,13 @@ export default function TodayPage() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 hover:bg-slate-50"
           >
             Home
           </a>
           <a
             href="/today"
-            className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+            className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white hover:bg-emerald-800"
           >
             Refresh
           </a>
@@ -291,7 +293,7 @@ export default function TodayPage() {
               MEDITATE
             </a>
 
-            <div className="mt-2 text-xs text-slate-600">
+            <div className="mt-2 text-sm text-slate-700">
               Take a quiet 15 minutes in a place of peace.
             </div>
           </div>
@@ -303,7 +305,7 @@ export default function TodayPage() {
         </div>
       </section>
 
-      {/* Notification soft prompt (Step 1: UI + timing only) */}
+      {/* Notification soft prompt */}
       <NotificationSoftPrompt delayMs={6000} cooldownDays={4} />
     </main>
   );
