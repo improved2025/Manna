@@ -1,4 +1,4 @@
-const CACHE_NAME = "manna-cache-v8";
+const CACHE_NAME = "manna-cache-v9";
 const OFFLINE_URL = "/offline";
 
 // Cache the offline page for sure (never fail the whole install because of one asset)
