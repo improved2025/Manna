@@ -61,3 +61,34 @@ section,
 .manna-hero-motion {
   animation: manna-soft-zoom 18s ease-out forwards;
 }
+
+/* ============================= */
+/* MANNA gentle page motion */
+/* ============================= */
+@keyframes manna-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-in {
+  animation: manna-fade-up 520ms ease-out both;
+}
+
+.motion-soft {
+  animation: manna-fade-up 650ms ease-out both;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .manna-hero-motion,
+  .animate-page-in,
+  .motion-soft {
+    animation: none !important;
+  }
+}
