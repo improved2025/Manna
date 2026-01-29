@@ -190,81 +190,95 @@ export default function TodayPage() {
       </header>
 
       <section className="mt-6 space-y-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          {loading ? (
-            <div className="text-sm text-slate-700">Loading…</div>
-          ) : error ? (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-slate-900">
-                Something didn’t load
-              </div>
-              <div className="text-sm text-slate-700">{error}</div>
-            </div>
-          ) : !row ? (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-slate-900">
-                Today’s devotional isn’t available yet.
-              </div>
-              <div className="text-sm text-slate-700">
-                If this is a new deployment, run the weekly generator (cron) so
-                the next 7 days exist in the database.
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">
-                  Scripture (KJV)
-                </div>
-                <div className="text-lg font-semibold text-slate-900">
-                  {row.scripture_ref}
-                </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden">
+          {/* Today header image (inside card) */}
+          <div className="relative h-36 sm:h-44 w-full">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: "url(/images/today/today-reflection.jpg)",
+              }}
+            />
+            <div className="absolute inset-0 bg-black/15" />
+          </div>
 
-                {row.scripture_text ? (
-                  <div className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
-                    {row.scripture_text}
+          {/* Card content */}
+          <div className="p-6">
+            {loading ? (
+              <div className="text-sm text-slate-700">Loading…</div>
+            ) : error ? (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-900">
+                  Something didn’t load
+                </div>
+                <div className="text-sm text-slate-700">{error}</div>
+              </div>
+            ) : !row ? (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-900">
+                  Today’s devotional isn’t available yet.
+                </div>
+                <div className="text-sm text-slate-700">
+                  If this is a new deployment, run the weekly generator (cron) so
+                  the next 7 days exist in the database.
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-slate-500">
+                    Scripture (KJV)
                   </div>
-                ) : (
-                  <div className="mt-3 text-sm text-slate-600">
-                    Scripture text will appear once today’s content is generated.
+                  <div className="text-lg font-semibold text-slate-900">
+                    {row.scripture_ref}
                   </div>
-                )}
 
-                {row.scripture_version ? (
-                  <div className="mt-2 text-xs text-slate-500">
-                    Text: {row.scripture_version}
+                  {row.scripture_text ? (
+                    <div className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
+                      {row.scripture_text}
+                    </div>
+                  ) : (
+                    <div className="mt-3 text-sm text-slate-600">
+                      Scripture text will appear once today’s content is generated.
+                    </div>
+                  )}
+
+                  {row.scripture_version ? (
+                    <div className="mt-2 text-xs text-slate-500">
+                      Text: {row.scripture_version}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Reflection
                   </div>
-                ) : null}
-              </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {reflectionText}
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <div className="text-sm font-semibold text-slate-800">
-                  Reflection
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Faith Confession
+                  </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {confessionText}
+                  </div>
                 </div>
-                <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
-                  {reflectionText}
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <div className="text-sm font-semibold text-slate-800">
-                  Faith Confession
-                </div>
-                <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
-                  {confessionText}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm font-semibold text-slate-800">
-                  Prayer for You
-                </div>
-                <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
-                  {row.prayer_for_you || ""}
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Prayer for You
+                  </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {row.prayer_for_you || ""}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">

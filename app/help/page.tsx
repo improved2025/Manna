@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { EMOTIONAL_STATES } from "@/content/emotional-states";
 import SurrenderCta from "@/components/SurrenderCta";
 
@@ -31,52 +28,64 @@ function chipStyle(state: string) {
 }
 
 export default function HelpPage() {
-  const pathname = usePathname();
   const states = Object.keys(EMOTIONAL_STATES);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold text-slate-900">
-        What are you feeling right now?
-      </h1>
+      {/* Header image */}
+      <div className="relative mb-10 rounded-3xl overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url(/images/help/help-quiet.jpg)",
+          }}
+        />
+        <div className="absolute inset-0 bg-black/40" />
 
-      <p className="mt-3 text-slate-600">
-        Choose what best describes where you are. You don’t have to explain it.
-      </p>
-
-      <div className="mt-8 flex flex-wrap gap-4">
-        {states.map((state) => {
-          const href = `/help/${state}`;
-          const isActive = pathname === href;
-
-          return (
-            <Link
-              key={state}
-              href={href}
-              aria-current={isActive ? "page" : undefined}
-              className={[
-                "inline-flex items-center justify-center",
-                "rounded-full border",
-                "px-8 py-4",
-                "text-lg font-semibold",
-                "shadow-sm",
-                "transition",
-                "hover:shadow-md",
-                "active:translate-y-[1px] active:shadow-sm",
-                chipStyle(state),
-                isActive
-                  ? "ring-2 ring-slate-300 ring-offset-2 ring-offset-white"
-                  : "",
-              ].join(" ")}
-            >
-              {toLabel(state)}
-            </Link>
-          );
-        })}
+        <div className="relative z-10 px-6 py-14 text-center">
+          <h1 className="text-3xl font-semibold tracking-tight text-white">
+            I Need Help
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-white/85">
+            You don’t have to explain. Just choose where you are.
+          </p>
+        </div>
       </div>
 
-      <SurrenderCta />
+      {/* Content */}
+      <p className="text-base text-slate-600">
+        Choose what best describes how you’re feeling right now.
+      </p>
 
+      {/* Emotion tabs */}
+      <div className="mt-8 flex flex-wrap gap-4">
+        {states.map((state) => (
+          <Link
+            key={state}
+            href={`/help/${state}`}
+            className={[
+              "inline-flex items-center justify-center",
+              "rounded-full border",
+              "px-7 py-4",
+              "text-base font-semibold",
+              "shadow-sm",
+              "transition",
+              "hover:shadow-md",
+              "active:translate-y-[1px] active:shadow-sm",
+              chipStyle(state),
+            ].join(" ")}
+          >
+            {toLabel(state)}
+          </Link>
+        ))}
+      </div>
+
+      {/* Surrender CTA */}
+      <div className="mt-14">
+        <SurrenderCta />
+      </div>
+
+      {/* Back */}
       <div className="mt-12">
         <Link
           href="/landing"

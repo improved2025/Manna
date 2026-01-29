@@ -3,18 +3,26 @@ import Link from "next/link";
 export default function SurrenderPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      {/* Header */}
-      <header className="space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Surrender to God
-        </h1>
-        <p className="text-base leading-relaxed text-slate-600">
-          A quiet step into a victorious life.
-        </p>
-      </header>
+      {/* Header image (Surrender) */}
+      <div className="relative mb-10 rounded-3xl overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url(/images/surrender/surrender-quiet.jpg)" }}
+        />
+        <div className="absolute inset-0 bg-black/35" />
+
+        <div className="relative z-10 px-6 py-14 text-center">
+          <h1 className="text-3xl font-semibold tracking-tight text-white">
+            Surrender to God
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-white/85">
+            A quiet step into a victorious life.
+          </p>
+        </div>
+      </div>
 
       {/* Content */}
-      <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="space-y-10">
           {/* Scripture */}
           <div>

@@ -10,6 +10,17 @@ export default function HomePage() {
 
       <main className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-6 py-14">
+          {/* Hero image (Landing) */}
+          <div className="relative w-full h-[38vh] sm:h-[44vh] rounded-3xl overflow-hidden mb-12">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: "url(/images/landing/landing-hero.jpg)",
+              }}
+            />
+            <div className="absolute inset-0 bg-black/25" />
+          </div>
+
           {/* Hero */}
           <section className="grid items-start gap-12 md:grid-cols-2">
             {/* Left */}
@@ -33,21 +44,20 @@ export default function HomePage() {
                 No noise. No overload. Just steady truth for today.
               </p>
 
-         <div className="mt-9 flex flex-wrap items-center gap-3">
-  <Link
-    href="/start"
-    className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
-  >
-    Start Today
-  </Link>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/start"
+                  className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
+                >
+                  Start Today
+                </Link>
 
-  <InstallButton />
+                <InstallButton />
 
-  <ShareButton />
-</div>
+                <ShareButton />
+              </div>
 
               {/* NEW: subtle helper line */}
-              
               <div className="mt-7 inline-flex max-w-xl items-start rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950">
                 Scripture first. Spoken prayers. Steady strength for everyday
                 life.
@@ -158,42 +168,42 @@ export default function HomePage() {
 
           {/* Help block */}
           <section className="mt-14">
-  <div className="grid gap-6 md:grid-cols-2">
-    {/* Help */}
-    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
-      <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-        Need help right now?
-      </h2>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        Choose how you feel. Get a steady word for this moment.
-      </p>
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Help */}
+              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+                  Need help right now?
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Choose how you feel. Get a steady word for this moment.
+                </p>
 
-      <Link
-        href="/help"
-        className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
-      >
-        I NEED HELP
-      </Link>
-    </div>
+                <Link
+                  href="/help"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+                >
+                  I NEED HELP
+                </Link>
+              </div>
 
-    {/* Meditation */}
-    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
-      <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-        Need stillness?
-      </h2>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        When you need quiet, enter a calm 15-minute place of peace.
-      </p>
+              {/* Meditation */}
+              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+                  Need stillness?
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  When you need quiet, enter a calm 15-minute place of peace.
+                </p>
 
-      <Link
-        href="/meditation"
-        className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
-      >
-        MEDITATION
-      </Link>
-    </div>
-  </div>
-</section>
+                <Link
+                  href="/meditation"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+                >
+                  MEDITATION
+                </Link>
+              </div>
+            </div>
+          </section>
 
           {/* Footer */}
           <footer className="mt-12 pb-6 text-xs text-slate-500">
