@@ -19,7 +19,7 @@ export default function WelcomePage() {
     // If user already onboarded, skip welcome after brief pause
     if (hasOnboarding()) {
       const t = setTimeout(() => {
-        router.replace("/today");
+        router.replace("/landing");
       }, 800);
       return () => clearTimeout(t);
     }
