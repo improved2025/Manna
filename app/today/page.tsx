@@ -167,7 +167,7 @@ export default function TodayPage() {
   const confessionText = confessionSeasoned || row?.faith_confession || "";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-3xl px-6 py-12 animate-page-in">
       <header className="space-y-2">
         <div className="text-sm font-medium text-slate-600">
           MANNA • {daykey}
@@ -190,11 +190,11 @@ export default function TodayPage() {
       </header>
 
       <section className="mt-6 space-y-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
           {/* Today header image (inside card) */}
           <div className="relative h-36 sm:h-44 w-full">
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center manna-hero-motion"
               style={{
                 backgroundImage: "url(/images/today/today-reflection.jpg)",
               }}
@@ -284,13 +284,13 @@ export default function TodayPage() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 hover:bg-slate-50"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
           >
             Home
           </a>
           <a
             href="/today"
-            className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white hover:bg-emerald-800"
+            className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
           >
             Refresh
           </a>
@@ -299,10 +299,10 @@ export default function TodayPage() {
         {/* Meditation + Surrender (Meditation first on mobile) */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Meditation (quiet, secondary) */}
-          <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center">
+          <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center motion-soft">
             <a
               href="/meditation"
-              className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
             >
               MEDITATE
             </a>
@@ -313,7 +313,7 @@ export default function TodayPage() {
           </div>
 
           {/* Surrender (existing CTA, stronger) */}
-          <div className="order-2 sm:order-none">
+          <div className="order-2 sm:order-none motion-soft">
             <SurrenderCta />
           </div>
         </div>

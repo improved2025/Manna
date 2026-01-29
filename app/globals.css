@@ -24,6 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
 /* MANNA calm defaults */
 body {
   background-color: #fafafa;
@@ -43,4 +44,20 @@ section,
 /* Quiet pill */
 .rounded-full {
   background-color: #f4f6f7;
+}
+
+/* ============================= */
+/* MANNA subtle hero motion */
+/* ============================= */
+@keyframes manna-soft-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+.manna-hero-motion {
+  animation: manna-soft-zoom 18s ease-out forwards;
 }

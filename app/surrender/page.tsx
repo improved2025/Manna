@@ -2,11 +2,11 @@ import Link from "next/link";
 
 export default function SurrenderPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-3xl px-6 py-16 animate-page-in">
       {/* Header image (Surrender) */}
-      <div className="relative mb-10 rounded-3xl overflow-hidden">
+      <div className="relative mb-10 rounded-3xl overflow-hidden motion-soft">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center manna-hero-motion"
           style={{ backgroundImage: "url(/images/surrender/surrender-quiet.jpg)" }}
         />
         <div className="absolute inset-0 bg-black/35" />
@@ -22,7 +22,7 @@ export default function SurrenderPage() {
       </div>
 
       {/* Content */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm motion-soft">
         <div className="space-y-10">
           {/* Scripture */}
           <div>
@@ -113,14 +113,14 @@ export default function SurrenderPage() {
           <div className="flex flex-col gap-3 sm:flex-row pt-2">
             <Link
               href="/today"
-              className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-700 hover:-translate-y-[1px]"
             >
               Continue with today’s manna
             </Link>
 
             <Link
               href="/help"
-              className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
             >
               I NEED HELP
             </Link>
@@ -132,7 +132,7 @@ export default function SurrenderPage() {
       <div className="mt-12">
         <Link
           href="/landing"
-          className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+          className="text-sm font-medium text-emerald-700 transition-colors hover:text-emerald-800"
         >
           Back
         </Link>

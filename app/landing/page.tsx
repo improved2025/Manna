@@ -8,12 +8,12 @@ export default function HomePage() {
     <>
       <Header />
 
-      <main className="bg-slate-50">
+      <main className="bg-slate-50 animate-page-in">
         <div className="mx-auto max-w-6xl px-6 py-14">
           {/* Hero image (Landing) */}
-          <div className="relative w-full h-[38vh] sm:h-[44vh] rounded-3xl overflow-hidden mb-12">
+          <div className="relative w-full h-[38vh] sm:h-[44vh] rounded-3xl overflow-hidden mb-12 motion-soft">
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center manna-hero-motion"
               style={{
                 backgroundImage: "url(/images/landing/landing-hero.jpg)",
               }}
@@ -25,7 +25,7 @@ export default function HomePage() {
           <section className="grid items-start gap-12 md:grid-cols-2">
             {/* Left */}
             <div className="pt-2">
-              <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm">
+              <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm motion-soft">
                 Calm, scripture-centered daily devotional (NKJV reference)
               </span>
 
@@ -47,7 +47,7 @@ export default function HomePage() {
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link
                   href="/start"
-                  className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
+                  className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
                 >
                   Start Today
                 </Link>
@@ -57,15 +57,15 @@ export default function HomePage() {
                 <ShareButton />
               </div>
 
-              {/* NEW: subtle helper line */}
-              <div className="mt-7 inline-flex max-w-xl items-start rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950">
+              {/* subtle helper line */}
+              <div className="mt-7 inline-flex max-w-xl items-start rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950 motion-soft">
                 Scripture first. Spoken prayers. Steady strength for everyday
                 life.
               </div>
             </div>
 
             {/* Right */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm motion-soft">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
                 What meets you each day
               </h2>
@@ -108,7 +108,7 @@ export default function HomePage() {
 
           {/* How it works */}
           <section className="mt-14">
-            <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm motion-soft">
               <div className="flex items-end justify-between gap-6">
                 <div>
                   <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -170,7 +170,7 @@ export default function HomePage() {
           <section className="mt-14">
             <div className="grid gap-6 md:grid-cols-2">
               {/* Help */}
-              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm motion-soft">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
                   Need help right now?
                 </h2>
@@ -180,14 +180,14 @@ export default function HomePage() {
 
                 <Link
                   href="/help"
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
                 >
                   I NEED HELP
                 </Link>
               </div>
 
               {/* Meditation */}
-              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm motion-soft">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
                   Need stillness?
                 </h2>
@@ -197,7 +197,7 @@ export default function HomePage() {
 
                 <Link
                   href="/meditation"
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 uppercase"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
                 >
                   MEDITATION
                 </Link>

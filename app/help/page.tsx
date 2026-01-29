@@ -2,9 +2,9 @@ import Link from "next/link";
 
 export default function HelpPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-3xl px-6 py-16 animate-page-in">
       {/* Header image */}
-      <div className="relative mb-10 overflow-hidden rounded-3xl">
+      <div className="relative mb-10 overflow-hidden rounded-3xl motion-soft">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -24,7 +24,7 @@ export default function HelpPage() {
       </div>
 
       {/* Content */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm motion-soft">
         <p className="mb-6 text-base text-slate-700">
           Choose what best describes how you’re feeling right now.
         </p>
@@ -42,7 +42,7 @@ export default function HelpPage() {
             <Link
               key={state}
               href={`/help/${state.toLowerCase()}`}
-              className="rounded-full border border-slate-200 bg-slate-50 px-6 py-3 text-base font-semibold text-slate-900 shadow-sm hover:bg-slate-100"
+              className="rounded-full border border-slate-200 bg-slate-50 px-6 py-3 text-base font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:bg-slate-100 hover:-translate-y-[1px]"
             >
               {state}
             </Link>
@@ -52,7 +52,7 @@ export default function HelpPage() {
         <div className="mt-10">
           <Link
             href="/surrender"
-            className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white hover:bg-emerald-800"
+            className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
           >
             SURRENDER TO GOD
           </Link>
@@ -67,7 +67,7 @@ export default function HelpPage() {
       <div className="mt-12">
         <Link
           href="/landing"
-          className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+          className="text-sm font-medium text-emerald-700 transition-colors hover:text-emerald-800"
         >
           Back
         </Link>
