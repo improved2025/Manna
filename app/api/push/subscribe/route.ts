@@ -30,9 +30,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });
   }
 
+  const now = new Date().toISOString();
+
   const { error } = await supabase
     .from("push_subscriptions")
-    .upsert({ endpoint, p256dh, auth }, { onConflict: "endpoint" });
+    .upsert(
+      {
+        endpoint,
+        p256dh,
+        auth,
+        updated_at: now,
+        created_at: now,
+      },
+      { onConflict: "endpoint" }
+    );
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
