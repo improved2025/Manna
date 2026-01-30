@@ -3,11 +3,17 @@ import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 
 export async function GET(req: Request) {
-  // Optional protection (recommended)
+  // Protection: allow either Authorization header (cron) OR ?key=CRON_SECRET (manual test)
   const CRON_SECRET = process.env.CRON_SECRET;
   if (CRON_SECRET) {
     const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${CRON_SECRET}`) {
+    const url = new URL(req.url);
+    const key = url.searchParams.get("key");
+
+    const okHeader = auth === `Bearer ${CRON_SECRET}`;
+    const okQuery = key === CRON_SECRET;
+
+    if (!okHeader && !okQuery) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
@@ -58,7 +64,10 @@ export async function GET(req: Request) {
       };
 
       try {
-        await webpush.sendNotification(subscription as any, JSON.stringify(payload));
+        await webpush.sendNotification(
+          subscription as any,
+          JSON.stringify(payload)
+        );
         sent += 1;
       } catch {
         failed += 1;
