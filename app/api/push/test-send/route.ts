@@ -22,10 +22,16 @@ export async function GET() {
   const { data: rows, error } = await supabase
     .from("push_subscriptions")
     .select("endpoint,p256dh,auth")
+    .order("created_at", { ascending: false })
     .limit(1);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!rows || rows.length === 0) return NextResponse.json({ error: "No subscriptions saved" }, { status: 400 });
+  if (!rows || rows.length === 0) {
+    return NextResponse.json(
+      { error: "No subscriptions saved" },
+      { status: 400 }
+    );
+  }
 
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
@@ -34,7 +40,24 @@ export async function GET() {
     keys: { p256dh: rows[0].p256dh, auth: rows[0].auth },
   };
 
-  await webpush.sendNotification(subscription as any, JSON.stringify({}));
+  const payload = {
+    title: "Today’s manna is ready.",
+    body: "Open MANNA to read today’s Scripture and prayer.",
+    url: "/today",
+  };
 
-  return NextResponse.json({ ok: true });
+  try {
+    await webpush.sendNotification(subscription as any, JSON.stringify(payload));
+    return NextResponse.json({ ok: true, sent: true });
+  } catch (e: any) {
+    return NextResponse.json(
+      {
+        ok: false,
+        sent: false,
+        error: e?.message || "Failed to send notification",
+        statusCode: e?.statusCode,
+      },
+      { status: 500 }
+    );
+  }
 }
