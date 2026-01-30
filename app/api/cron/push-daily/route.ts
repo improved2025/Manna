@@ -3,11 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 
 export async function GET(req: Request) {
-  // Optional: simple guard so random people can't spam your push endpoint
-  const auth = req.headers.get("authorization");
+  // Optional protection (recommended)
   const CRON_SECRET = process.env.CRON_SECRET;
-  if (CRON_SECRET && auth !== `Bearer ${CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (CRON_SECRET) {
+    const auth = req.headers.get("authorization");
+    if (auth !== `Bearer ${CRON_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -28,20 +30,20 @@ export async function GET(req: Request) {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // Pull all subscriptions (you can add paging later if this grows)
   const { data: rows, error } = await supabase
     .from("push_subscriptions")
     .select("endpoint,p256dh,auth")
-    .limit(1000);
+    .limit(2000);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!rows || rows.length === 0) {
-    return NextResponse.json({ ok: true, sent: 0, note: "No subscriptions" });
+    return NextResponse.json({ ok: true, sent: 0, failed: 0 });
   }
 
+  // Locked notification wording
   const payload = {
-    title: "Today’s manna is ready.",
-    body: "Open MANNA to read today’s Scripture and prayer.",
+    title: "MANNA",
+    body: "Today’s manna is ready.",
     url: "/today",
   };
 
