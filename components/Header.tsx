@@ -26,24 +26,36 @@ export default function Header() {
         </Link>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Take a moment */}
-          <Link
-            href="/meditation"
-            title="Pause in quiet reflection"
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50"
-          >
-            Take a moment
-          </Link>
+          <div className="flex flex-col items-center text-center">
+            <Link
+              href="/meditation"
+              className="
+                rounded-md px-4 py-2 text-sm font-semibold transition-all duration-200
+                bg-emerald-600 text-white hover:bg-emerald-700
+                sm:border sm:border-slate-300 sm:bg-white sm:text-slate-900 sm:hover:bg-slate-50
+              "
+            >
+              Take a moment
+            </Link>
+            <div className="mt-1 text-[11px] font-medium text-slate-500">
+              Pause in quiet reflection
+            </div>
+          </div>
 
           {/* Today */}
-          <Link
-            href="/today"
-            title="Today’s Scripture and prayer"
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          >
-            Today
-          </Link>
+          <div className="flex flex-col items-center text-center">
+            <Link
+              href="/today"
+              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Today
+            </Link>
+            <div className="mt-1 text-[11px] font-medium text-slate-500">
+              Today’s Scripture and prayer
+            </div>
+          </div>
         </div>
       </div>
     </header>
