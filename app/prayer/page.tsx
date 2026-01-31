@@ -13,9 +13,9 @@ export default function PrayerPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched(true);
-
     if (!canSubmit) return;
 
+    // Intentionally quiet: no network, no promises, no fanfare.
     setSubmitted(true);
   }
 
@@ -72,6 +72,7 @@ export default function PrayerPage() {
                 ) : null}
               </div>
 
+              {/* Submit button (present in form state) */}
               <button
                 type="submit"
                 className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] disabled:opacity-60 disabled:hover:translate-y-0"
@@ -91,6 +92,7 @@ export default function PrayerPage() {
                 </div>
               </div>
 
+              {/* Post-submit actions (buttons present here) */}
               <div className="flex flex-col gap-3 sm:flex-row">
                 {/* Return stays WHITE / secondary */}
                 <Link
@@ -100,7 +102,7 @@ export default function PrayerPage() {
                   Return to today’s manna
                 </Link>
 
-                {/* Take a moment becomes PRIMARY */}
+                {/* Take a moment is PRIMARY emerald */}
                 <Link
                   href="/meditation"
                   className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
