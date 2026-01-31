@@ -16,7 +16,6 @@ export default function PrayerPage() {
 
     if (!canSubmit) return;
 
-    // Intentionally quiet: no network, no promises, no fanfare.
     setSubmitted(true);
   }
 
@@ -80,9 +79,6 @@ export default function PrayerPage() {
               >
                 Submit prayer
               </button>
-
-                           
-              
             </form>
           ) : (
             <div className="space-y-4">
@@ -96,18 +92,20 @@ export default function PrayerPage() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row">
+                {/* Return stays WHITE / secondary */}
                 <Link
                   href="/today"
-                  className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+                  className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
                 >
                   Return to today’s manna
                 </Link>
 
+                {/* Take a moment becomes PRIMARY */}
                 <Link
                   href="/meditation"
-                  className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
+                  className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
                 >
-                  take a moment 
+                  Take a moment
                 </Link>
               </div>
 
