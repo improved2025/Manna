@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Logo */}
         <Link href="/landing" className="flex items-center gap-3">
           <Image
@@ -19,42 +19,36 @@ export default function Header() {
             <div className="text-lg font-semibold tracking-tight text-slate-900">
               MANNA
             </div>
-            <div className="text-xs text-slate-600">
+
+            {/* Hide tagline on mobile to prevent action buttons from wrapping */}
+            <div className="hidden text-xs text-slate-600 sm:block">
               Daily Bread. Daily Walk.
             </div>
           </div>
         </Link>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
-          {/* Take a moment */}
-          <div className="flex flex-col items-center text-center">
-            <Link
-              href="/meditation"
-              className="
-                rounded-md px-4 py-2 text-sm font-semibold transition-all duration-200
-                bg-emerald-600 text-white hover:bg-emerald-700
-                sm:border sm:border-slate-300 sm:bg-white sm:text-slate-900 sm:hover:bg-slate-50
-              "
-            >
-              Take a moment
-            </Link>
-            <div className="mt-1 text-[11px] font-medium text-slate-500">
-              Pause in quiet reflection
-            </div>
-          </div>
+        <div className="grid grid-cols-2 items-start gap-x-3 gap-y-1 text-center">
+          <Link
+            href="/meditation"
+            className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 whitespace-nowrap sm:bg-white sm:text-slate-900 sm:border sm:border-slate-300 sm:text-sm sm:px-4 sm:py-2 sm:hover:bg-slate-50"
+          >
+            Take a moment
+          </Link>
 
-          {/* Today */}
-          <div className="flex flex-col items-center text-center">
-            <Link
-              href="/today"
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-            >
-              Today
-            </Link>
-            <div className="mt-1 text-[11px] font-medium text-slate-500">
-              Today’s Scripture and prayer
-            </div>
+          <Link
+            href="/today"
+            className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 whitespace-nowrap sm:text-sm sm:px-4 sm:py-2"
+          >
+            Today
+          </Link>
+
+          {/* Descriptions: visible on mobile + desktop, aligned cleanly */}
+          <div className="text-[10px] leading-tight font-medium text-slate-500 sm:text-[11px]">
+            Pause in quiet reflection
+          </div>
+          <div className="text-[10px] leading-tight font-medium text-slate-500 sm:text-[11px]">
+            Today’s Scripture and prayer
           </div>
         </div>
       </div>
