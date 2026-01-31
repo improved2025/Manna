@@ -27,16 +27,19 @@ export default function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Take a moment (replaces Meditate) */}
+          {/* Take a moment */}
           <Link
             href="/meditation"
+            title="Pause in quiet reflection"
             className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50"
           >
             Take a moment
           </Link>
 
+          {/* Today */}
           <Link
             href="/today"
+            title="Today’s Scripture and prayer"
             className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             Today
