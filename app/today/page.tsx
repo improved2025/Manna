@@ -248,6 +248,19 @@ export default function TodayPage() {
                       Text: {row.scripture_version}
                     </div>
                   ) : null}
+
+                  {/* Meditate (moved here: bold + present around Scripture) */}
+                  <div className="mt-4">
+                    <a
+                      href="/meditation"
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
+                    >
+                      Meditate
+                    </a>
+                    <div className="mt-2 text-sm text-slate-700">
+                      Sit with this Scripture for a quiet moment.
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -296,23 +309,23 @@ export default function TodayPage() {
           </a>
         </div>
 
-        {/* Meditation + Surrender (Meditation first on mobile) */}
+        {/* Help + Surrender (Help replaces old Meditation card) */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Meditation (quiet, secondary) */}
+          {/* I NEED HELP (replaces old Meditation CTA position) */}
           <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center motion-soft">
             <a
-              href="/meditation"
+              href="/help"
               className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
             >
-              MEDITATE
+              I NEED HELP
             </a>
 
             <div className="mt-2 text-sm text-slate-700">
-              Take a quiet 15 minutes in a place of peace.
+              Choose how you feel. Get a steady word for this moment.
             </div>
           </div>
 
-          {/* Surrender (existing CTA, stronger) */}
+          {/* Surrender (untouched) */}
           <div className="order-2 sm:order-none motion-soft">
             <SurrenderCta />
           </div>
