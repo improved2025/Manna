@@ -251,15 +251,16 @@ export default function TodayPage() {
 
                   {/* Meditate (moved here: bold + present around Scripture) */}
                   <div className="mt-4">
-                    <a
-                      href="/meditation"
-                      className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
-                    >
-                      Meditate
-                    </a>
-                    <div className="mt-2 text-sm text-slate-700">
-                      Sit with this Scripture for a quiet moment.
-                    </div>
+                    <a<a
+  href="/meditation"
+  className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+>
+  Meditate
+</a>
+<div className="mt-2 text-sm text-slate-700">
+  Sit with this Scripture for a quiet moment.
+</div>
+
                   </div>
                 </div>
 
