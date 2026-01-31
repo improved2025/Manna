@@ -52,6 +52,14 @@ export default function HomePage() {
                   Start Today
                 </Link>
 
+                {/* Meditate (added near hero CTAs) */}
+                <Link
+                  href="/meditation"
+                  className="rounded-md border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
+                >
+                  Meditate
+                </Link>
+
                 <InstallButton />
 
                 <ShareButton />
@@ -186,20 +194,20 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Meditation */}
+              {/* Prayer Request (replaces Meditation card) */}
               <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm motion-soft">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                  Need stillness?
+                  Need prayer?
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  When you need quiet, enter a calm 15-minute place of peace.
+                  Bring what’s heavy before God.
                 </p>
 
                 <Link
-                  href="/meditation"
+                  href="/prayer"
                   className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
                 >
-                  MEDITATION
+                  PRAYER REQUEST
                 </Link>
               </div>
             </div>
