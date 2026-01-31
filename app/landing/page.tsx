@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
 import ShareButton from "../../components/ShareButton";
+import HeroRotator from "@/components/HeroRotator";
 
 export default function HomePage() {
   return (
@@ -12,13 +13,18 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-14">
           {/* Hero image (Landing) */}
           <div className="relative w-full h-[38vh] sm:h-[44vh] rounded-3xl overflow-hidden mb-12 motion-soft">
-            <div
-              className="absolute inset-0 bg-cover bg-center manna-hero-motion"
-              style={{
-                backgroundImage: "url(/images/landing/landing-hero.jpg)",
-              }}
+            <HeroRotator
+              images={[
+                "/images/landing/landing-hero.jpg",
+                "/images/landing/landing-hero-1.jpg",
+                "/images/landing/landing-hero-2.jpg",
+                "/images/landing/landing-hero-3.jpg",
+                "/images/landing/landing-hero-4.jpg",
+              ]}
+              intervalMs={10000}
+              fadeMs={1200}
+              overlayClassName="bg-black/25"
             />
-            <div className="absolute inset-0 bg-black/25" />
 
             {/* Bottom readability band */}
             <div className="absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
