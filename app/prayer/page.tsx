@@ -81,9 +81,8 @@ export default function PrayerPage() {
                 Submit prayer
               </button>
 
-              <div className="pt-1 text-xs text-slate-500">
-                This page is quiet by design. No account required.
-              </div>
+                           
+              
             </form>
           ) : (
             <div className="space-y-4">
@@ -108,7 +107,7 @@ export default function PrayerPage() {
                   href="/meditation"
                   className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
                 >
-                  Sit in stillness
+                  take a moment 
                 </Link>
               </div>
 
