@@ -21,8 +21,8 @@ export default function HomePage() {
                 "/images/landing/landing-hero-3.jpg",
                 "/images/landing/landing-hero-4.jpg",
               ]}
-              intervalMs={10000}
-              fadeMs={1200}
+              intervalMs={6500}
+              fadeMs={1100}
               overlayClassName="bg-black/25"
             />
 

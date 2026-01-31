@@ -200,8 +200,8 @@ export default function TodayPage() {
                 "/images/today/today-reflection-2.jpg",
                 "/images/today/today-reflection-3.jpg",
               ]}
-              intervalMs={11000}
-              fadeMs={1200}
+              intervalMs={8000}
+              fadeMs={1100}
               overlayClassName="bg-black/15"
             />
           </div>
