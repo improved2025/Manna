@@ -16,7 +16,7 @@ export default function Header() {
           />
 
           <div className="leading-tight">
-            <div className="text-sm font-semibold tracking-tight text-slate-900">
+            <div className="text-lg font-semibold tracking-tight text-slate-900">
               MANNA
             </div>
             <div className="text-xs text-slate-600">
@@ -27,11 +27,12 @@ export default function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Meditate replaces Help */}
           <Link
-            href="/help"
+            href="/meditation"
             className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Help
+            Meditate
           </Link>
 
           <Link
