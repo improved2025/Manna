@@ -49,17 +49,35 @@ export default function HelpPage() {
           ))}
         </div>
 
-        <div className="mt-10">
-          <Link
-            href="/surrender"
-            className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
-          >
-            SURRENDER TO GOD
-          </Link>
+        {/* Take a moment + Surrender side-by-side */}
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Take a moment */}
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-sm motion-soft">
+            <Link
+              href="/meditation"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+            >
+              Take a moment
+            </Link>
 
-          <p className="mt-2 text-center text-sm text-slate-600">
-            A quiet step into a victorious life.
-          </p>
+            <p className="mt-2 text-center text-sm text-emerald-950">
+              Pause. Breathe. Sit quietly with God before your next step.
+            </p>
+          </div>
+
+          {/* Surrender */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm motion-soft">
+            <Link
+              href="/surrender"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+            >
+              SURRENDER TO GOD
+            </Link>
+
+            <p className="mt-2 text-center text-sm text-slate-600">
+              A quiet step into a victorious life.
+            </p>
+          </div>
         </div>
       </section>
 
