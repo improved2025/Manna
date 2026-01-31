@@ -19,6 +19,40 @@ export default function HomePage() {
               }}
             />
             <div className="absolute inset-0 bg-black/25" />
+
+            {/* Bottom readability band */}
+            <div className="absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
+
+            {/* Overlay CTAs */}
+            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4">
+                {/* Today */}
+                <div className="flex flex-col items-center sm:items-end">
+                  <Link
+                    href="/today"
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 sm:w-auto"
+                  >
+                    Today
+                  </Link>
+                  <div className="mt-1 text-center text-[11px] font-medium text-white/85 sm:text-right">
+                    Today’s Scripture and prayer
+                  </div>
+                </div>
+
+                {/* Take a moment */}
+                <div className="flex flex-col items-center sm:items-end">
+                  <Link
+                    href="/meditation"
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-white/70 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/15 sm:w-auto"
+                  >
+                    Take a moment
+                  </Link>
+                  <div className="mt-1 text-center text-[11px] font-medium text-white/85 sm:text-right">
+                    Pause in quiet reflection
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Hero */}
@@ -186,7 +220,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Prayer Request (replaces Meditation card) */}
+              {/* Prayer Request */}
               <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 shadow-sm motion-soft">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
                   Need prayer?
