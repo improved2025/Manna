@@ -27,10 +27,10 @@ export default function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Meditate replaces Help */}
+          {/* Meditate (bold + present) */}
           <Link
             href="/meditation"
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50"
           >
             Meditate
           </Link>
