@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import InstallButton from "@/components/InstallButton";
+import InstallButton from "./InstallButton";
 
 export default function Header() {
   return (
@@ -15,6 +15,7 @@ export default function Header() {
             height={44}
             priority
           />
+
           <div className="leading-tight">
             <div className="text-lg font-semibold tracking-tight text-slate-900">
               MANNA
@@ -25,11 +26,11 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Primary action: Install */}
+        {/* Primary action: Install (prominent wrapper) */}
         <div className="flex flex-col items-end">
-          <InstallButton
-            className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
-          />
+          <div className="rounded-xl bg-emerald-700 px-2 py-2 shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]">
+            <InstallButton />
+          </div>
 
           {/* Optional helper (mobile only) */}
           <div className="mt-1 text-[10px] font-medium text-slate-600 sm:hidden">
