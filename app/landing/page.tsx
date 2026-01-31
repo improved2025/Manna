@@ -52,14 +52,6 @@ export default function HomePage() {
                   Start Today
                 </Link>
 
-                {/* Meditate (added near hero CTAs) */}
-                <Link
-                  href="/meditation"
-                  className="rounded-md border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
-                >
-                  Meditate
-                </Link>
-
                 <InstallButton />
 
                 <ShareButton />
