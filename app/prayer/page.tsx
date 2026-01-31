@@ -22,6 +22,17 @@ export default function PrayerPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 animate-page-in">
+      {/* Hero image */}
+      <div className="relative mb-8 h-40 sm:h-48 w-full overflow-hidden rounded-3xl motion-soft">
+        <div
+          className="absolute inset-0 bg-cover bg-center manna-hero-motion"
+          style={{
+            backgroundImage: "url(/images/prayer/prayer-hero.jpg)",
+          }}
+        />
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
+
       <header className="space-y-2">
         <div className="text-sm font-medium text-slate-600">MANNA</div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
