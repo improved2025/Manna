@@ -49,10 +49,10 @@ export default function HelpPage() {
           ))}
         </div>
 
-        {/* Take a moment + Surrender side-by-side */}
+        {/* Uniform CTAs */}
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Take a moment */}
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-sm motion-soft">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm motion-soft">
             <Link
               href="/meditation"
               className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
@@ -60,13 +60,13 @@ export default function HelpPage() {
               Take a moment
             </Link>
 
-            <p className="mt-2 text-center text-sm text-emerald-950">
+            <p className="mt-3 text-sm leading-relaxed text-slate-700">
               Pause. Breathe. Sit quietly with God before your next step.
             </p>
           </div>
 
           {/* Surrender */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm motion-soft">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm motion-soft">
             <Link
               href="/surrender"
               className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
@@ -74,7 +74,7 @@ export default function HelpPage() {
               SURRENDER TO GOD
             </Link>
 
-            <p className="mt-2 text-center text-sm text-slate-600">
+            <p className="mt-3 text-sm leading-relaxed text-slate-700">
               A quiet step into a victorious life.
             </p>
           </div>
