@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import SurrenderCta from "@/components/SurrenderCta";
 import NotificationSoftPrompt from "@/components/NotificationSoftPrompt";
+import HeroRotator from "@/components/HeroRotator";
 
 type Season =
   | "Preparation"
@@ -192,13 +193,17 @@ export default function TodayPage() {
       <section className="mt-6 space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
           <div className="relative h-36 sm:h-44 w-full">
-            <div
-              className="absolute inset-0 bg-cover bg-center manna-hero-motion"
-              style={{
-                backgroundImage: "url(/images/today/today-reflection.jpg)",
-              }}
+            <HeroRotator
+              images={[
+                "/images/today/today-reflection.jpg",
+                "/images/today/today-reflection-1.jpg",
+                "/images/today/today-reflection-2.jpg",
+                "/images/today/today-reflection-3.jpg",
+              ]}
+              intervalMs={11000}
+              fadeMs={1200}
+              overlayClassName="bg-black/15"
             />
-            <div className="absolute inset-0 bg-black/15" />
           </div>
 
           <div className="p-6">
