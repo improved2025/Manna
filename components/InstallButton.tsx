@@ -68,35 +68,43 @@ export default function InstallButton({ className = "" }: InstallButtonProps) {
     setOpenHelp(true);
   }
 
-  const label = installed ? "Installed" : "Install";
+  const label = installed ? "Added to Home Screen" : "Get Daily Manna";
 
   const base =
-    "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-all duration-200";
+    "inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200";
   const state = installed
     ? "border border-slate-200 bg-slate-100 text-slate-500"
     : "bg-emerald-700 text-white hover:bg-emerald-800 hover:-translate-y-[1px]";
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleInstall}
-        disabled={installed}
-        className={[base, state, className].filter(Boolean).join(" ")}
-      >
-        {label}
-      </button>
+      <div className="flex flex-col items-center">
+        <button
+          type="button"
+          onClick={handleInstall}
+          disabled={installed}
+          className={[base, state, className].filter(Boolean).join(" ")}
+        >
+          {label}
+        </button>
+
+        {!installed && (
+          <div className="mt-1 text-[11px] font-medium text-slate-600">
+            Daily Scripture & prayer on your phone
+          </div>
+        )}
+      </div>
 
       {openHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="text-lg font-semibold text-slate-900">
-              Install MANNA
+              Add MANNA to your phone
             </div>
 
             {ios ? (
               <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
-                <p>On iPhone or iPad, install through Safari:</p>
+                <p>On iPhone or iPad:</p>
                 <ol className="list-decimal space-y-2 pl-5">
                   <li>Open this site in Safari.</li>
                   <li>Tap the Share icon.</li>
@@ -106,8 +114,8 @@ export default function InstallButton({ className = "" }: InstallButtonProps) {
               </div>
             ) : (
               <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
-                <p>Your browser is not showing the install prompt right now.</p>
-                <p>Try Chrome on Android, then return and tap Install again.</p>
+                <p>Your browser isn’t showing the install option right now.</p>
+                <p>Try Chrome on Android, then tap “Get Daily Manna” again.</p>
               </div>
             )}
 
