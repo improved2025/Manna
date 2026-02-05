@@ -170,9 +170,7 @@ export default function TodayPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 animate-page-in">
       <header className="space-y-2">
-        <div className="text-sm font-medium text-slate-600">
-          MANNA • {daykey}
-        </div>
+        <div className="text-sm font-medium text-slate-600">MANNA • {daykey}</div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Today’s Devotional
         </h1>
@@ -200,8 +198,8 @@ export default function TodayPage() {
                 "/images/today/today-reflection-2.jpg",
                 "/images/today/today-reflection-3.jpg",
               ]}
-              intervalMs={8000}
-              fadeMs={1100}
+              intervalMs={5200} // tighter cadence (matches landing feel)
+              fadeMs={900}
               overlayClassName="bg-black/15"
             />
           </div>
