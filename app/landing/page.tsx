@@ -21,40 +21,40 @@ export default function HomePage() {
                 "/images/landing/landing-hero-3.jpg",
                 "/images/landing/landing-hero-4.jpg",
               ]}
-              intervalMs={6500}
-              fadeMs={1100}
+              intervalMs={5200} // tighter cadence
+              fadeMs={900}
               overlayClassName="bg-black/25"
             />
 
             {/* Bottom readability band */}
-            <div className="absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/55 via-black/25 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-32 sm:h-36 bg-gradient-to-t from-black/65 via-black/30 to-transparent" />
 
-            {/* Overlay CTAs */}
+            {/* Overlay CTAs (uniform + readable) */}
             <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4">
-                {/* Today */}
-                <div className="flex flex-col items-center sm:items-end">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:justify-end sm:gap-4 sm:max-w-[520px] sm:ml-auto">
+                {/* Primary: Get Today */}
+                <div className="flex flex-col items-stretch">
                   <Link
                     href="/today"
-                    className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
                   >
-                    Today
+                    Get today’s manna
                   </Link>
-                  <div className="mt-1 text-center text-[11px] font-medium text-white/85 sm:text-right">
-                    Today’s Scripture and prayer
+                  <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
+                    Today’s Scripture, reflection, and prayer
                   </div>
                 </div>
 
-                {/* Take a moment */}
-                <div className="flex flex-col items-center sm:items-end">
+                {/* Secondary: Take a moment */}
+                <div className="flex flex-col items-stretch">
                   <Link
                     href="/meditation"
-                    className="inline-flex w-full items-center justify-center rounded-xl border border-white/70 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/15 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center rounded-2xl border border-white/70 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/15 hover:-translate-y-[1px]"
                   >
                     Take a moment
                   </Link>
-                  <div className="mt-1 text-center text-[11px] font-medium text-white/85 sm:text-right">
-                    Pause in quiet reflection
+                  <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
+                    Pause. Breathe. Sit quietly with God.
                   </div>
                 </div>
               </div>
@@ -85,11 +85,12 @@ export default function HomePage() {
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-3">
+                {/* Primary CTA: route to Today (higher conversion than /start) */}
                 <Link
-                  href="/start"
+                  href="/today"
                   className="rounded-md bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
                 >
-                  Start Today
+                  Get today’s manna
                 </Link>
 
                 <InstallButton />
