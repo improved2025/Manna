@@ -71,12 +71,16 @@ export default async function EmotionalStatePage({
             </p>
 
             {/* Install CTA (right after the word lands) */}
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm font-medium text-white/85">
                 Keep MANNA close for moments like this.
               </div>
 
-              <InstallButton className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]" />
+              <InstallButton
+                variant="primary"
+                helperText="Daily Scripture & prayer on your phone"
+                className="w-full sm:w-auto"
+              />
             </div>
           </div>
 

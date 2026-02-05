@@ -9,6 +9,8 @@ type BIPEvent = Event & {
 
 type InstallButtonProps = {
   className?: string;
+  variant?: "primary" | "neutral";
+  helperText?: string;
 };
 
 function isIOS() {
@@ -26,7 +28,11 @@ function isStandalone() {
   );
 }
 
-export default function InstallButton({ className = "" }: InstallButtonProps) {
+export default function InstallButton({
+  className = "",
+  variant = "primary",
+  helperText = "Daily Scripture & prayer on your phone",
+}: InstallButtonProps) {
   const [bip, setBip] = useState<BIPEvent | null>(null);
   const [openHelp, setOpenHelp] = useState(false);
   const [installed, setInstalled] = useState(false);
@@ -72,9 +78,16 @@ export default function InstallButton({ className = "" }: InstallButtonProps) {
 
   const base =
     "inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200";
-  const state = installed
-    ? "border border-slate-200 bg-slate-100 text-slate-500"
-    : "bg-emerald-700 text-white hover:bg-emerald-800 hover:-translate-y-[1px]";
+
+  const primary =
+    "bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 hover:-translate-y-[1px]";
+
+  const neutral =
+    "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50 hover:-translate-y-[1px]";
+
+  const installedStyle = "border border-slate-200 bg-slate-100 text-slate-500";
+
+  const variantStyle = variant === "primary" ? primary : neutral;
 
   return (
     <>
@@ -83,16 +96,18 @@ export default function InstallButton({ className = "" }: InstallButtonProps) {
           type="button"
           onClick={handleInstall}
           disabled={installed}
-          className={[base, state, className].filter(Boolean).join(" ")}
+          className={[base, installed ? installedStyle : variantStyle, className]
+            .filter(Boolean)
+            .join(" ")}
         >
           {label}
         </button>
 
-        {!installed && (
+        {!installed && helperText ? (
           <div className="mt-1 text-[11px] font-medium text-slate-600">
-            Daily Scripture & prayer on your phone
+            {helperText}
           </div>
-        )}
+        ) : null}
       </div>
 
       {openHelp && (
