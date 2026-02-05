@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EMOTIONAL_STATES } from "@/content/emotional-states";
+import InstallButton from "@/components/InstallButton";
 
 function toLabel(slug: string) {
   return slug.charAt(0).toUpperCase() + slug.slice(1);
@@ -7,7 +8,6 @@ function toLabel(slug: string) {
 
 function normalizeSlug(raw: string) {
   const s = (raw || "").toLowerCase().trim();
-  // keep only safe path chars (prevents weird urls breaking your image path)
   return s.replace(/[^a-z0-9-]/g, "");
 }
 
@@ -21,8 +21,6 @@ export default async function EmotionalStatePage({
   const slug = normalizeSlug(raw);
 
   const messages = EMOTIONAL_STATES[slug as keyof typeof EMOTIONAL_STATES];
-
-  // your saved structure
   const bgImage = `/images/help/states/${slug}.jpg`;
 
   if (!messages || messages.length === 0) {
@@ -57,7 +55,6 @@ export default async function EmotionalStatePage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      {/* Background image wrapper (keeps your message logic intact) */}
       <div className="relative overflow-hidden rounded-3xl border border-slate-200 shadow-sm motion-soft">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -65,7 +62,6 @@ export default async function EmotionalStatePage({
         />
         <div className="absolute inset-0 bg-black/45" />
 
-        {/* Content */}
         <div className="relative z-10 p-8 sm:p-10">
           <h1 className="text-2xl font-semibold text-white">{toLabel(slug)}</h1>
 
@@ -73,9 +69,17 @@ export default async function EmotionalStatePage({
             <p className="whitespace-pre-line text-white/90 leading-relaxed">
               {message.text}
             </p>
+
+            {/* Install CTA (right after the word lands) */}
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm font-medium text-white/85">
+                Keep MANNA close for moments like this.
+              </div>
+
+              <InstallButton className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]" />
+            </div>
           </div>
 
-          {/* Keep navigation simple + clean */}
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/help"

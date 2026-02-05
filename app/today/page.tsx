@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import SurrenderCta from "@/components/SurrenderCta";
 import NotificationSoftPrompt from "@/components/NotificationSoftPrompt";
 import HeroRotator from "@/components/HeroRotator";
+import InstallButton from "@/components/InstallButton";
 
 type Season =
   | "Preparation"
@@ -178,13 +179,23 @@ export default function TodayPage() {
           Season: <span className="font-medium text-slate-900">{season}</span>
         </p>
 
-        <div className="pt-2">
+        <div className="pt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <a
             href="/start"
             className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
           >
             Change season/time
           </a>
+
+          {/* Install CTA (high visibility) */}
+          <div className="flex items-start justify-start sm:justify-end">
+            <div className="flex flex-col items-start sm:items-end">
+              <InstallButton className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]" />
+              <div className="mt-1 text-[11px] font-medium text-slate-600">
+                Keep MANNA on your home screen
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -198,7 +209,7 @@ export default function TodayPage() {
                 "/images/today/today-reflection-2.jpg",
                 "/images/today/today-reflection-3.jpg",
               ]}
-              intervalMs={5200} // tighter cadence (matches landing feel)
+              intervalMs={5200}
               fadeMs={900}
               overlayClassName="bg-black/15"
             />
@@ -292,6 +303,21 @@ export default function TodayPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Secondary install nudge (after devotional) */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm motion-soft">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-sm font-semibold text-slate-900">
+                Keep this close
+              </div>
+              <div className="mt-1 text-sm text-slate-700">
+                Add MANNA to your home screen for daily Scripture and prayer.
+              </div>
+            </div>
+            <InstallButton className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]" />
           </div>
         </div>
 
