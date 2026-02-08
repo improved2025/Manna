@@ -1,9 +1,12 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
-import HeroRotator from "@/components/HeroRotator";
 
 export default function HomePage() {
+  // Put your welcome video here (save in: /public/videos/)
+  // Example path: /public/videos/landing-welcome.mp4  ->  "/videos/landing-welcome.mp4"
+  const VIDEO_SRC = "/videos/landing-welcome.mp4";
+
   return (
     <>
       <Header />
@@ -13,70 +16,33 @@ export default function HomePage() {
           {/* HERO */}
           <section className="relative w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
             <div className="relative h-[46vh] sm:h-[52vh]">
-              <HeroRotator
-                images={[
-                  "/images/landing/landing-hero.jpg",
-                  "/images/landing/landing-hero-1.jpg",
-                  "/images/landing/landing-hero-2.jpg",
-                  "/images/landing/landing-hero-3.jpg",
-                  "/images/landing/landing-hero-4.jpg",
-                ]}
-                intervalMs={5200}
-                fadeMs={900}
-                overlayClassName="bg-black/35"
+              {/* VIDEO (no cropping: object-contain) */}
+              <video
+                className="absolute inset-0 h-full w-full bg-black object-contain"
+                src={VIDEO_SRC}
+                playsInline
+                controls
+                preload="metadata"
               />
 
-              {/* Readability band */}
-              <div className="absolute inset-x-0 bottom-0 h-44 sm:h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-              {/* subtle top sheen (premium depth) */}
+              {/* Subtle premium sheen */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
 
-              {/* Hero copy */}
+              {/* Bottom gradient for button readability */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-44 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+
+              {/* ONLY TWO BUTTONS (no text overlays) */}
               <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                <div className="max-w-2xl">
-                  <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm shadow-sm">
-                    Calm, scripture-centered daily devotional
-                  </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
+                  <Link
+                    href="/today"
+                    className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-black/20 transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-black/30"
+                  >
+                    Today’s Devotional
+                  </Link>
 
-                  <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
-                    A quiet daily walk with God.
-                  </h1>
-
-                  <p className="mt-3 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
-                    One Scripture. One reflection. One prayer for today.
-                  </p>
-
-                  {/* ONLY TWO CTAs */}
-                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
-                    {/* Primary */}
-                    <div className="flex flex-col items-stretch">
-                      <Link
-                        href="/today"
-                        className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-black/20 transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-black/30"
-                      >
-                        Today’s Devotional
-                      </Link>
-                      <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
-                        Scripture, reflection, and prayer
-                      </div>
-                    </div>
-
-                    {/* Install MANNA */}
-                    <div className="flex flex-col items-stretch">
-                      {/* keep component untouched; polish wrapper only */}
-                      <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
-                        <InstallButton />
-                      </div>
-                      <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
-                        Install on your phone for daily reminders
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* micro reassurance line (still “not adding”, just polishing tone) */}
-                  <div className="mt-4 text-[11px] font-medium text-white/75">
-                    
+                  <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
+                    <InstallButton />
                   </div>
                 </div>
               </div>
