@@ -76,7 +76,7 @@ export default function HomePage() {
 
                   {/* micro reassurance line (still “not adding”, just polishing tone) */}
                   <div className="mt-4 text-[11px] font-medium text-white/75">
-                    No account required. Built for consistency.
+                    
                   </div>
                 </div>
               </div>
