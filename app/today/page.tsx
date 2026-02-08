@@ -4,7 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import SurrenderCta from "@/components/SurrenderCta";
 import NotificationSoftPrompt from "@/components/NotificationSoftPrompt";
-import HeroRotator from "@/components/HeroRotator";
 import InstallButton from "@/components/InstallButton";
 
 type Season =
@@ -193,18 +192,20 @@ export default function TodayPage() {
 
       <section className="mt-6 space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
-          <div className="relative h-36 sm:h-44 w-full">
-            <HeroRotator
-              images={[
-                "/images/today/today-reflection.jpg",
-                "/images/today/today-reflection-1.jpg",
-                "/images/today/today-reflection-2.jpg",
-                "/images/today/today-reflection-3.jpg",
-              ]}
-              intervalMs={8000}
-              fadeMs={1100}
-              overlayClassName="bg-black/15"
-            />
+          {/* Today hero video (replaces HeroRotator) */}
+          <div className="relative h-36 sm:h-44 w-full overflow-hidden">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 h-full w-full object-cover"
+            >
+              <source src="/videos/today-calm.mp4" type="video/mp4" />
+            </video>
+
+            <div className="absolute inset-0 bg-black/15" />
           </div>
 
           <div className="p-6">
