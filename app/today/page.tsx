@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import SurrenderCta from "@/components/SurrenderCta";
 import NotificationSoftPrompt from "@/components/NotificationSoftPrompt";
+import HeroRotator from "@/components/HeroRotator";
 import InstallButton from "@/components/InstallButton";
 
 type Season =
@@ -75,6 +76,7 @@ function getSeasonOpeningLine(season: Season) {
 function makeSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   if (!url || !anon) return null;
   return createClient(url, anon, { auth: { persistSession: false } });
 }
@@ -104,7 +106,9 @@ export default function TodayPage() {
 
       if (!supabase) {
         setLoading(false);
-        setError("Missing Supabase env vars.");
+        setError(
+          "Missing public Supabase environment variables on this deployment."
+        );
         return;
       }
 
@@ -125,11 +129,17 @@ export default function TodayPage() {
           return;
         }
 
-        setRow(data || null);
+        if (!data) {
+          setRow(null);
+          setLoading(false);
+          return;
+        }
+
+        setRow(data as DailyRow);
         setLoading(false);
       } catch (e: any) {
         if (cancelled) return;
-        setError(e?.message || "Failed to load.");
+        setError(e?.message || "Failed to load today’s devotional.");
         setLoading(false);
       }
     }
@@ -142,9 +152,21 @@ export default function TodayPage() {
 
   const seasonOpening = useMemo(() => getSeasonOpeningLine(season), [season]);
 
-  const reflectionText = [seasonOpening, row?.exhortation]
+  const exhortationSeasoned =
+    row?.exhortation_seasons && row.exhortation_seasons[season]
+      ? row.exhortation_seasons[season]
+      : null;
+
+  const confessionSeasoned =
+    row?.faith_confession_seasons && row.faith_confession_seasons[season]
+      ? row.faith_confession_seasons[season]
+      : null;
+
+  const reflectionText = [seasonOpening, exhortationSeasoned || row?.exhortation]
     .filter(Boolean)
     .join("\n\n");
+
+  const confessionText = confessionSeasoned || row?.faith_confession || "";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 animate-page-in">
@@ -152,101 +174,192 @@ export default function TodayPage() {
         <div className="text-sm font-medium text-slate-600">
           MANNA • {daykey}
         </div>
-
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Today’s Devotional
         </h1>
-
         <p className="text-base text-slate-700">
           Season: <span className="font-medium text-slate-900">{season}</span>
         </p>
 
-        <a
-          href="/start"
-          className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
-        >
-          Change season/time
-        </a>
+        <div className="pt-2">
+          <a
+            href="/start"
+            className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+          >
+            Change season/time
+          </a>
+        </div>
       </header>
 
       <section className="mt-6 space-y-4">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-
-          {/* VIDEO HERO – FIXED */}
-          <div className="relative h-56 sm:h-64 w-full bg-black">
+        <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
+          {/* HERO: VIDEO (preferred) with perfect framing + AUDIO
+              Falls back to your existing HeroRotator if video fails to load */}
+          <div className="relative h-36 sm:h-44 w-full bg-black overflow-hidden">
             <video
               autoPlay
-              muted
               loop
               playsInline
+              controls
               preload="metadata"
               className="absolute inset-0 h-full w-full object-contain"
+              // NOTE:
+              // - Remove "muted" so audio is available.
+              // - Most mobile browsers will NOT autoplay audio. User must tap play (controls enabled).
             >
               <source src="/videos/today-calm.mp4" type="video/mp4" />
             </video>
 
-            <div className="absolute inset-0 bg-black/10" />
+            {/* subtle tone overlay */}
+            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+
+            {/* Image fallback behind video (and helpful if video takes a moment) */}
+            <div className="absolute inset-0 -z-10">
+              <HeroRotator
+                images={[
+                  "/images/today/today-reflection.jpg",
+                  "/images/today/today-reflection-1.jpg",
+                  "/images/today/today-reflection-2.jpg",
+                  "/images/today/today-reflection-3.jpg",
+                ]}
+                intervalMs={8000}
+                fadeMs={1100}
+                overlayClassName="bg-black/15"
+              />
+            </div>
           </div>
 
           <div className="p-6">
             {loading ? (
               <div className="text-sm text-slate-700">Loading…</div>
             ) : error ? (
-              <div className="text-sm text-slate-700">{error}</div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-900">
+                  Something didn’t load
+                </div>
+                <div className="text-sm text-slate-700">{error}</div>
+              </div>
             ) : !row ? (
-              <div className="text-sm text-slate-700">No devotional yet.</div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-900">
+                  Today’s devotional isn’t available yet.
+                </div>
+                <div className="text-sm text-slate-700">
+                  If this is a new deployment, run the weekly generator (cron) so
+                  the next 7 days exist in the database.
+                </div>
+              </div>
             ) : (
-              <>
-                <div className="text-xs font-medium text-slate-500">
-                  Scripture (KJV)
-                </div>
-
-                <div className="text-lg font-semibold text-slate-900">
-                  {row.scripture_ref}
-                </div>
-
-                <div className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
-                  {row.scripture_text}
-                </div>
-
-                <div className="mt-5">
-                  <a
-                    href="/meditation"
-                    className="inline-flex rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-800"
-                  >
-                    Meditate
-                  </a>
-
-                  <div className="mt-2 text-sm text-slate-700">
-                    Sit with this Scripture for a quiet moment.
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-slate-500">
+                    Scripture (KJV)
+                  </div>
+                  <div className="text-lg font-semibold text-slate-900">
+                    {row.scripture_ref}
                   </div>
 
-                  <div className="mt-4">
-                    <InstallButton />
+                  {row.scripture_text ? (
+                    <div className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
+                      {row.scripture_text}
+                    </div>
+                  ) : (
+                    <div className="mt-3 text-sm text-slate-600">
+                      Scripture text will appear once today’s content is generated.
+                    </div>
+                  )}
+
+                  {row.scripture_version ? (
+                    <div className="mt-2 text-xs text-slate-500">
+                      Text: {row.scripture_version}
+                    </div>
+                  ) : null}
+
+                  {/* Meditate — PROMINENT & EMERALD */}
+                  <div className="mt-5">
+                    <a
+                      href="/meditation"
+                      className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+                    >
+                      Meditate
+                    </a>
+                    <div className="mt-2 text-sm text-slate-700">
+                      Sit with this Scripture for a quiet moment.
+                    </div>
+
+                    {/* Install CTA (emerald, never white) */}
+                    <div className="mt-4">
+                      <InstallButton
+                        variant="primary"
+                        helperText="Daily Scripture & prayer on your phone"
+                        className="w-full sm:w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 whitespace-pre-wrap text-base leading-7 text-slate-800">
-                  {reflectionText}
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Reflection
+                  </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {reflectionText}
+                  </div>
                 </div>
 
-                <div className="mt-6 whitespace-pre-wrap text-base leading-7 text-slate-800">
-                  {row.prayer_for_you}
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Faith Confession
+                  </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {confessionText}
+                  </div>
                 </div>
-              </>
+
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Prayer for You
+                  </div>
+                  <div className="whitespace-pre-wrap text-base leading-7 text-slate-800">
+                    {row.prayer_for_you || ""}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <a
-            href="/help"
-            className="rounded-xl bg-emerald-700 px-6 py-3 text-center text-sm font-semibold text-white"
+            href="/"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 transition-all duration-200 hover:bg-slate-50 hover:-translate-y-[1px]"
           >
-            I NEED HELP
+            Home
           </a>
+          <a
+            href="/today"
+            className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+          >
+            Refresh
+          </a>
+        </div>
 
-          <SurrenderCta />
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="order-1 sm:order-none rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-center motion-soft">
+            <a
+              href="/help"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] uppercase"
+            >
+              I NEED HELP
+            </a>
+            <div className="mt-2 text-sm text-slate-700">
+              Choose how you feel. Get a steady word for this moment.
+            </div>
+          </div>
+
+          <div className="order-2 sm:order-none motion-soft">
+            <SurrenderCta />
+          </div>
         </div>
       </section>
 
