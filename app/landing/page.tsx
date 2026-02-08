@@ -44,7 +44,7 @@ export default function HomePage() {
                     One Scripture. One reflection. One prayer for today.
                   </p>
 
-                  {/* CTAs */}
+                  {/* ONLY TWO CTAs */}
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[520px]">
                     {/* Primary */}
                     <div className="flex flex-col items-stretch">
@@ -59,30 +59,20 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Secondary */}
+                    {/* Install MANNA */}
                     <div className="flex flex-col items-stretch">
-                      <Link
-                        href="/meditation"
-                        className="inline-flex w-full items-center justify-center rounded-2xl border border-white/70 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/15 hover:-translate-y-[1px]"
-                      >
-                        Take a moment
-                      </Link>
+                      <InstallButton />
                       <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
-                        Pause. Breathe. Sit with God.
+                        Install on your phone for daily reminders
                       </div>
                     </div>
-                  </div>
-
-                  {/* Install CTA (kept, but not competing with primary CTA) */}
-                  <div className="mt-4 inline-flex">
-                    <InstallButton />
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* VALUE (tight) */}
+          {/* VALUE */}
           <section className="mt-10">
             <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm motion-soft">
               <h2 className="text-lg font-semibold tracking-tight text-slate-900">
@@ -119,7 +109,7 @@ export default function HomePage() {
               </div>
 
               <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-emerald-950">
-                Personal, without intrusion. No account required.
+                Personal. Quiet. No account required.
               </div>
             </div>
           </section>
