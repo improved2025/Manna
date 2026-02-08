@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import InstallButton from "./InstallButton";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -31,25 +30,17 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-3">
-          {/* Install (always visible) */}
-          <div className="rounded-xl bg-emerald-700 px-2 py-2 shadow-sm hover:bg-emerald-800 transition">
-            <InstallButton />
+        {/* Hamburger */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50"
+        >
+          <div className="space-y-1.5">
+            <span className="block h-0.5 w-5 bg-slate-900" />
+            <span className="block h-0.5 w-5 bg-slate-900" />
+            <span className="block h-0.5 w-5 bg-slate-900" />
           </div>
-
-          {/* Hamburger */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50"
-          >
-            <div className="space-y-1.5">
-              <span className="block h-0.5 w-5 bg-slate-900" />
-              <span className="block h-0.5 w-5 bg-slate-900" />
-              <span className="block h-0.5 w-5 bg-slate-900" />
-            </div>
-          </button>
-        </div>
+        </button>
       </div>
 
       {/* Dropdown menu */}
@@ -57,11 +48,11 @@ export default function Header() {
         <div className="border-t border-slate-200 bg-white shadow-sm">
           <div className="mx-auto max-w-6xl px-6 py-4 space-y-3">
             <Link
-              href="/today"
+              href="/meditation"
               onClick={() => setOpen(false)}
               className="block text-sm font-semibold text-slate-900 hover:text-emerald-700"
             >
-              Today’s Devotional
+              Take a moment
             </Link>
 
             <Link
