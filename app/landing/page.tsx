@@ -112,7 +112,7 @@ export default function HomePage() {
                         Today’s Devotional
                       </Link>
                       <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
-                        Scripture, reflection, and prayer
+                        
                       </div>
                     </div>
 
