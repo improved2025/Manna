@@ -97,7 +97,7 @@ export default function HomePage() {
                   />
                 )}
 
-                {/* Bottom CTA overlay */}
+                {/* Bottom CTA overlay (ONLY place CTAs exist) */}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6">
                   {/* readability band */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 sm:h-40 bg-gradient-to-t from-black/75 via-black/40 to-transparent" />
@@ -121,6 +121,7 @@ export default function HomePage() {
                       <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
                         <InstallButton />
                       </div>
+                      {/* CHANGED: plain white for readability */}
                       <div className="mt-1.5 text-center text-[12px] font-medium text-white">
                         Install on your phone for daily reminders
                       </div>
@@ -129,7 +130,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Content under video (no duplicate buttons) */}
+              {/* Text under video (NO buttons here) */}
               <div className="px-6 py-7 sm:px-8 sm:py-8">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
