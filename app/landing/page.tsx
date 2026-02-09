@@ -1,8 +1,13 @@
+"use client";
+
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
+import { useState } from "react";
 
 export default function HomePage() {
+  const [videoReady, setVideoReady] = useState(false);
+
   return (
     <>
       <Header />
@@ -11,14 +16,33 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-12">
           {/* HERO VIDEO (NO TEXT OVERLAY) */}
           <section className="w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
-            <div className="relative bg-black">
+            <div className="relative">
+              {/* Poster layer (always visible instantly) */}
+              <div
+                className={[
+                  "absolute inset-0 bg-cover bg-center",
+                  videoReady ? "opacity-0" : "opacity-100",
+                  "transition-opacity duration-300",
+                ].join(" ")}
+                style={{ backgroundImage: "url(/images/landing/landing-poster.jpg)" }}
+                aria-hidden="true"
+              />
+
+              {/* Video */}
               <video
-                className="block h-[46vh] w-full object-cover sm:h-[52vh]"
+                className={[
+                  "relative block h-[46vh] w-full object-cover sm:h-[52vh]",
+                  videoReady ? "opacity-100" : "opacity-0",
+                  "transition-opacity duration-300",
+                ].join(" ")}
                 src="/videos/landing-welcome.mp4"
                 poster="/images/landing/landing-poster.jpg"
                 playsInline
                 controls
                 preload="metadata"
+                // no muted, no loop
+                onCanPlay={() => setVideoReady(true)}
+                onLoadedData={() => setVideoReady(true)}
               />
             </div>
 
