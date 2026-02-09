@@ -1,3 +1,5 @@
+"use client";
+
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
@@ -7,16 +9,15 @@ export default function HomePage() {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     setPlaying(true);
 
-    // iOS Safari needs the play() call after the element exists.
-    // This runs right after state updates and the video is mounted.
-    setTimeout(() => {
+    // iOS Safari sometimes needs a tick before play() works.
+    setTimeout(async () => {
       try {
-        videoRef.current?.play();
+        await videoRef.current?.play();
       } catch {
-        // ignore; controls are visible so user can tap play
+        // controls are visible; user can still tap play
       }
     }, 0);
   };
@@ -29,44 +30,23 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-12">
           {/* HERO */}
           <section className="relative w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
-            {/* Media (poster always visible on mobile) */}
-            <div
-              className="relative h-[46vh] sm:h-[52vh]"
-              style={{
-                backgroundImage: "url(/images/landing/landing-poster.jpg)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              {/* subtle top sheen (premium depth) */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
+            {/* Media */}
+            <div className="relative h-[46vh] sm:h-[52vh] overflow-hidden">
+              {/* Poster ALWAYS visible (desktop + mobile) */}
+              <img
+                src="/images/landing/landing-poster.jpg"
+                alt="MANNA welcome"
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                draggable={false}
+              />
 
-              {!playing ? (
-                <>
-                  {/* Poster image layer (crisp) */}
-                  <img
-                    src="/images/landing/landing-poster.jpg"
-                    alt="MANNA welcome"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
+              {/* Slight dark overlay for premium contrast */}
+              <div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-                  {/* Play overlay */}
-                  <button
-                    type="button"
-                    onClick={handlePlay}
-                    aria-label="Play welcome video"
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
-                      <span className="text-xl leading-none text-slate-900">
-                        ▶
-                      </span>
-                    </span>
-                  </button>
-                </>
-              ) : (
+              {/* If playing, mount the video on top */}
+              {playing ? (
                 <video
                   ref={videoRef}
                   src="/videos/landing-welcome.mp4"
@@ -74,11 +54,27 @@ export default function HomePage() {
                   controls
                   playsInline
                   preload="metadata"
+                  // IMPORTANT: no muted, no loop
                 />
+              ) : (
+                // Play button overlay (poster stays visible)
+                <button
+                  type="button"
+                  onClick={handlePlay}
+                  aria-label="Play welcome video"
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
+                    <span className="text-xl leading-none text-slate-900">▶</span>
+                  </span>
+                </button>
               )}
+
+              {/* Subtle top sheen */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
             </div>
 
-            {/* Text UNDER the video (not over it) */}
+            {/* Text UNDER the video */}
             <div className="p-5 sm:p-7">
               <div className="max-w-2xl">
                 <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -95,7 +91,6 @@ export default function HomePage() {
 
                 {/* ONLY TWO CTAs */}
                 <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
-                  {/* Primary */}
                   <div className="flex flex-col items-stretch">
                     <Link
                       href="/today"
@@ -108,7 +103,6 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Install MANNA */}
                   <div className="flex flex-col items-stretch">
                     <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-sm [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-emerald-400/60">
                       <InstallButton />
@@ -136,27 +130,21 @@ export default function HomePage() {
 
               <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">
-                    Scripture
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900">Scripture</div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     A steady anchor for your day.
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">
-                    Reflection
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900">Reflection</div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     Short, practical, and grounded.
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">
-                    Prayer
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900">Prayer</div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     Spoken faith you can carry forward.
                   </div>
@@ -169,7 +157,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* FOOTER */}
           <footer className="mt-10 pb-6 text-xs text-slate-500">
             MANNA • Daily Bread. Daily Walk.
           </footer>
