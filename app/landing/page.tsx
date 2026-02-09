@@ -3,10 +3,10 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
-import { useState } from "react";
 
 export default function HomePage() {
-  const [videoReady, setVideoReady] = useState(false);
+  const posterSrc = "/images/landing/landing-poster.jpg";
+  const videoSrc = "/videos/landing-welcome.mp4";
 
   return (
     <>
@@ -14,39 +14,29 @@ export default function HomePage() {
 
       <main className="bg-slate-50 animate-page-in">
         <div className="mx-auto max-w-6xl px-6 py-12">
-          {/* HERO VIDEO (NO TEXT OVERLAY) */}
+          {/* HERO VIDEO */}
           <section className="w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
-            <div className="relative">
-              {/* Poster layer (always visible instantly) */}
-              <div
-                className={[
-                  "absolute inset-0 bg-cover bg-center",
-                  videoReady ? "opacity-0" : "opacity-100",
-                  "transition-opacity duration-300",
-                ].join(" ")}
-                style={{ backgroundImage: "url(/images/landing/landing-poster.jpg)" }}
-                aria-hidden="true"
-              />
-
-              {/* Video */}
+            {/* Video wrapper uses poster as a background fallback (prevents white flash) */}
+            <div
+              className="relative"
+              style={{
+                backgroundImage: `url(${posterSrc})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
               <video
-                className={[
-                  "relative block h-[46vh] w-full object-cover sm:h-[52vh]",
-                  videoReady ? "opacity-100" : "opacity-0",
-                  "transition-opacity duration-300",
-                ].join(" ")}
-                src="/videos/landing-welcome.mp4"
-                poster="/images/landing/landing-poster.jpg"
-                playsInline
+                className="block h-[46vh] w-full object-cover sm:h-[52vh]"
+                src={videoSrc}
+                poster={posterSrc}
                 controls
+                playsInline
                 preload="metadata"
-                // no muted, no loop
-                onCanPlay={() => setVideoReady(true)}
-                onLoadedData={() => setVideoReady(true)}
+                // IMPORTANT: no muted, no loop
               />
             </div>
 
-            {/* TITLE + BUTTONS UNDER VIDEO */}
+            {/* Title + buttons under video */}
             <div className="p-5 sm:p-7">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 A quiet daily walk with God.
@@ -113,7 +103,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* FOOTER */}
           <footer className="mt-10 pb-6 text-xs text-slate-500">
             MANNA • Daily Bread. Daily Walk.
           </footer>
