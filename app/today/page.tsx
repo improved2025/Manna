@@ -193,36 +193,19 @@ export default function TodayPage() {
 
       <section className="mt-6 space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
-          {/* HERO: VIDEO with better framing (no top crop) */}
-          <div className="relative h-36 sm:h-44 w-full bg-black overflow-hidden">
-            <video
-              autoPlay
-              loop
-              playsInline
-              controls
-              preload="metadata"
-              className="absolute inset-0 z-10 h-full w-full object-cover object-[50%_20%]"
-            >
-              <source src="/videos/today-calm.mp4" type="video/mp4" />
-            </video>
-
-            {/* subtle tone overlay */}
-            <div className="absolute inset-0 bg-black/10 pointer-events-none z-20" />
-
-            {/* fallback behind video */}
-            <div className="absolute inset-0 -z-10">
-              <HeroRotator
-                images={[
-                  "/images/today/today-reflection.jpg",
-                  "/images/today/today-reflection-1.jpg",
-                  "/images/today/today-reflection-2.jpg",
-                  "/images/today/today-reflection-3.jpg",
-                ]}
-                intervalMs={8000}
-                fadeMs={1100}
-                overlayClassName="bg-black/15"
-              />
-            </div>
+          {/* HERO: SLIDING IMAGES (ORIGINAL) */}
+          <div className="relative h-36 sm:h-44 w-full">
+            <HeroRotator
+              images={[
+                "/images/today/today-reflection.jpg",
+                "/images/today/today-reflection-1.jpg",
+                "/images/today/today-reflection-2.jpg",
+                "/images/today/today-reflection-3.jpg",
+              ]}
+              intervalMs={8000}
+              fadeMs={1100}
+              overlayClassName="bg-black/15"
+            />
           </div>
 
           <div className="p-6">
@@ -241,8 +224,8 @@ export default function TodayPage() {
                   Today’s devotional isn’t available yet.
                 </div>
                 <div className="text-sm text-slate-700">
-                  If this is a new deployment, run the weekly generator (cron)
-                  so the next 7 days exist in the database.
+                  If this is a new deployment, run the weekly generator (cron) so
+                  the next 7 days exist in the database.
                 </div>
               </div>
             ) : (
@@ -261,8 +244,7 @@ export default function TodayPage() {
                     </div>
                   ) : (
                     <div className="mt-3 text-sm text-slate-600">
-                      Scripture text will appear once today’s content is
-                      generated.
+                      Scripture text will appear once today’s content is generated.
                     </div>
                   )}
 
@@ -272,6 +254,7 @@ export default function TodayPage() {
                     </div>
                   ) : null}
 
+                  {/* Meditate */}
                   <div className="mt-5">
                     <a
                       href="/meditation"
@@ -283,6 +266,7 @@ export default function TodayPage() {
                       Sit with this Scripture for a quiet moment.
                     </div>
 
+                    {/* Install CTA */}
                     <div className="mt-4">
                       <InstallButton
                         variant="primary"
