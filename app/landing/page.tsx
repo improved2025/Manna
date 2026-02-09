@@ -9,17 +9,23 @@ export default function HomePage() {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  // bump this number anytime you change poster/video to break iOS + SW cache
+  const ASSET_V = "7";
+
+  const posterSrc = `/images/landing/landing-poster.jpg?v=${ASSET_V}`;
+  const videoSrc = `/videos/landing-welcome.mp4?v=${ASSET_V}`;
+
   const handlePlay = async () => {
     setPlaying(true);
 
-    // iOS Safari sometimes needs a tick before play() works.
-    setTimeout(async () => {
+    // iOS Safari often needs the element mounted before play() succeeds
+    requestAnimationFrame(async () => {
       try {
         await videoRef.current?.play();
       } catch {
-        // controls are visible; user can still tap play
+        // If autoplay fails, controls are present; user can tap play
       }
-    }, 0);
+    });
   };
 
   return (
@@ -31,50 +37,61 @@ export default function HomePage() {
           {/* HERO */}
           <section className="relative w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
             {/* Media */}
-            <div className="relative h-[46vh] sm:h-[52vh] overflow-hidden">
-              {/* Poster ALWAYS visible (desktop + mobile) */}
-              <img
-                src="/images/landing/landing-poster.jpg"
-                alt="MANNA welcome"
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="eager"
-                fetchPriority="high"
-                draggable={false}
-              />
+            <div
+              className="relative h-[46vh] sm:h-[52vh] overflow-hidden"
+              style={{
+                backgroundImage: `url(${posterSrc})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Poster always visible (and faster paint than relying on video poster) */}
+              {!playing && (
+                <>
+                  <img
+                    src={posterSrc}
+                    alt="MANNA welcome"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="eager"
+                    fetchPriority="high"
+                    draggable={false}
+                  />
 
-              {/* Slight dark overlay for premium contrast */}
-              <div className="pointer-events-none absolute inset-0 bg-black/25" />
+                  {/* premium contrast overlay */}
+                  <div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-              {/* If playing, mount the video on top */}
-              {playing ? (
+                  {/* play overlay */}
+                  <button
+                    type="button"
+                    onClick={handlePlay}
+                    aria-label="Play welcome video"
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
+                      <span className="text-xl leading-none text-slate-900">▶</span>
+                    </span>
+                  </button>
+
+                  {/* subtle sheen */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
+                </>
+              )}
+
+              {/* IMPORTANT: video is NOT rendered until user taps */}
+              {playing && (
                 <video
                   ref={videoRef}
-                  src="/videos/landing-welcome.mp4"
                   className="absolute inset-0 h-full w-full object-cover"
+                  src={videoSrc}
                   controls
                   playsInline
                   preload="metadata"
-                  // IMPORTANT: no muted, no loop
+                  // no muted, no loop
                 />
-              ) : (
-                // Play button overlay (poster stays visible)
-                <button
-                  type="button"
-                  onClick={handlePlay}
-                  aria-label="Play welcome video"
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
-                    <span className="text-xl leading-none text-slate-900">▶</span>
-                  </span>
-                </button>
               )}
-
-              {/* Subtle top sheen */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
             </div>
 
-            {/* Text UNDER the video */}
+            {/* Text UNDER the media */}
             <div className="p-5 sm:p-7">
               <div className="max-w-2xl">
                 <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
