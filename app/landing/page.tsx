@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
   const [playing, setPlaying] = useState(false);
@@ -12,7 +12,6 @@ export default function HomePage() {
   const videoSrc = "/videos/landing-welcome.mp4";
   const posterSrc = "/images/landing/landing-poster.jpg";
 
-  // iOS/Safari: try to force poster display reliably before play
   useEffect(() => {
     setPlaying(false);
   }, []);
@@ -20,17 +19,15 @@ export default function HomePage() {
   const startPlayback = async () => {
     setPlaying(true);
 
-    // Wait one frame so the <video> exists in DOM before calling play()
     requestAnimationFrame(async () => {
       try {
         if (videoRef.current) {
-          // Ensure audio is ON (no muted)
           videoRef.current.muted = false;
           videoRef.current.volume = 1;
           await videoRef.current.play();
         }
       } catch {
-        // If autoplay/play is blocked, user can press play in controls
+        // If play is blocked, controls allow user to start manually.
       }
     });
   };
@@ -46,7 +43,7 @@ export default function HomePage() {
             <div className="relative">
               {/* VIDEO HERO (with poster) */}
               <div className="relative aspect-[4/5] w-full sm:aspect-[16/9]">
-                {/* Poster layer (always visible until play) */}
+                {/* Poster layer (visible until play) */}
                 {!playing && (
                   <button
                     type="button"
@@ -62,7 +59,7 @@ export default function HomePage() {
                       decoding="async"
                     />
 
-                    {/* soft dark wash for premium look */}
+                    {/* soft wash */}
                     <div className="pointer-events-none absolute inset-0 bg-black/20" />
 
                     {/* play button */}
@@ -100,29 +97,39 @@ export default function HomePage() {
                   />
                 )}
 
-                {/* Bottom CTA overlay (ALWAYS visible on video area, even before play) */}
+                {/* Bottom CTA overlay */}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6">
-                  {/* readability band behind buttons */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/70 via-black/35 to-transparent" />
+                  {/* readability band */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 sm:h-40 bg-gradient-to-t from-black/75 via-black/40 to-transparent" />
 
                   <div className="relative mx-auto grid max-w-[560px] grid-cols-1 gap-3 sm:grid-cols-2">
                     {/* Today */}
-                    <Link
-                      href="/today"
-                      className="pointer-events-auto inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-black/20 transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-black/30"
-                    >
-                      Today’s Devotional
-                    </Link>
+                    <div className="pointer-events-auto flex flex-col items-stretch">
+                      <Link
+                        href="/today"
+                        className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-black/20 transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-black/30"
+                      >
+                        Today’s Devotional
+                      </Link>
+                      <div className="mt-1.5 text-center text-[12px] font-medium text-white/90">
+                        Scripture, reflection, and prayer
+                      </div>
+                    </div>
 
                     {/* Install */}
-                    <div className="pointer-events-auto [&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
-                      <InstallButton />
+                    <div className="pointer-events-auto flex flex-col items-stretch">
+                      <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
+                        <InstallButton />
+                      </div>
+                      <div className="mt-1.5 text-center text-[12px] font-medium text-white">
+                        Install on your phone for daily reminders
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Content under video (text moved under, not on video) */}
+              {/* Content under video (no duplicate buttons) */}
               <div className="px-6 py-7 sm:px-8 sm:py-8">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
@@ -136,30 +143,6 @@ export default function HomePage() {
                   <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-700 sm:text-lg">
                     One Scripture. One reflection. One prayer for today.
                   </p>
-
-                  {/* Buttons under content (you already wanted these) */}
-                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
-                    <div className="flex flex-col items-stretch">
-                      <Link
-                        href="/today"
-                        className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
-                      >
-                        Today’s Devotional
-                      </Link>
-                      <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
-                        Scripture, reflection, and prayer
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-stretch">
-                      <div className="[&>button]:w-full [&>button]:rounded-2xl">
-                        <InstallButton />
-                      </div>
-                      <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
-                        Install on your phone for daily reminders
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
