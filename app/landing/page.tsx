@@ -3,27 +3,34 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function HomePage() {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // bump this number anytime you change poster/video to break iOS + SW cache
-  const ASSET_V = "7";
+  const videoSrc = "/videos/landing-welcome.mp4";
+  const posterSrc = "/images/landing/landing-poster.jpg";
 
-  const posterSrc = `/images/landing/landing-poster.jpg?v=${ASSET_V}`;
-  const videoSrc = `/videos/landing-welcome.mp4?v=${ASSET_V}`;
+  // iOS/Safari: try to force poster display reliably before play
+  useEffect(() => {
+    setPlaying(false);
+  }, []);
 
-  const handlePlay = async () => {
+  const startPlayback = async () => {
     setPlaying(true);
 
-    // iOS Safari often needs the element mounted before play() succeeds
+    // Wait one frame so the <video> exists in DOM before calling play()
     requestAnimationFrame(async () => {
       try {
-        await videoRef.current?.play();
+        if (videoRef.current) {
+          // Ensure audio is ON (no muted)
+          videoRef.current.muted = false;
+          videoRef.current.volume = 1;
+          await videoRef.current.play();
+        }
       } catch {
-        // If autoplay fails, controls are present; user can tap play
+        // If autoplay/play is blocked, user can press play in controls
       }
     });
   };
@@ -36,96 +43,121 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-12">
           {/* HERO */}
           <section className="relative w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
-            {/* Media */}
-            <div
-              className="relative h-[46vh] sm:h-[52vh] overflow-hidden"
-              style={{
-                backgroundImage: `url(${posterSrc})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              {/* Poster always visible (and faster paint than relying on video poster) */}
-              {!playing && (
-                <>
-                  <img
-                    src={posterSrc}
-                    alt="MANNA welcome"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    loading="eager"
-                    fetchPriority="high"
-                    draggable={false}
-                  />
-
-                  {/* premium contrast overlay */}
-                  <div className="pointer-events-none absolute inset-0 bg-black/25" />
-
-                  {/* play overlay */}
+            <div className="relative">
+              {/* VIDEO HERO (with poster) */}
+              <div className="relative aspect-[4/5] w-full sm:aspect-[16/9]">
+                {/* Poster layer (always visible until play) */}
+                {!playing && (
                   <button
                     type="button"
-                    onClick={handlePlay}
+                    onClick={startPlayback}
+                    className="group absolute inset-0 z-10 flex items-center justify-center"
                     aria-label="Play welcome video"
-                    className="absolute inset-0 flex items-center justify-center"
                   >
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
-                      <span className="text-xl leading-none text-slate-900">▶</span>
-                    </span>
+                    <img
+                      src={posterSrc}
+                      alt="MANNA welcome"
+                      className="h-full w-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
+
+                    {/* soft dark wash for premium look */}
+                    <div className="pointer-events-none absolute inset-0 bg-black/20" />
+
+                    {/* play button */}
+                    <div className="absolute flex items-center justify-center">
+                      <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-200 group-hover:scale-[1.03]">
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M9 7.5V16.5L17 12L9 7.5Z"
+                            fill="#0F172A"
+                          />
+                        </svg>
+                      </span>
+                    </div>
                   </button>
+                )}
 
-                  {/* subtle sheen */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
-                </>
-              )}
+                {/* Video layer */}
+                {playing && (
+                  <video
+                    ref={videoRef}
+                    className="absolute inset-0 z-0 h-full w-full object-cover"
+                    src={videoSrc}
+                    poster={posterSrc}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    muted={false}
+                    loop={false}
+                  />
+                )}
 
-              {/* IMPORTANT: video is NOT rendered until user taps */}
-              {playing && (
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={videoSrc}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  // no muted, no loop
-                />
-              )}
-            </div>
+                {/* Bottom CTA overlay (ALWAYS visible on video area, even before play) */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6">
+                  {/* readability band behind buttons */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/70 via-black/35 to-transparent" />
 
-            {/* Text UNDER the media */}
-            <div className="p-5 sm:p-7">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                  Calm, scripture-centered daily devotional
-                </div>
-
-                <h1 className="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
-                  A quiet daily walk with God.
-                </h1>
-
-                <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-700 sm:text-lg">
-                  One Scripture. One reflection. One prayer for today.
-                </p>
-
-                {/* ONLY TWO CTAs */}
-                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
-                  <div className="flex flex-col items-stretch">
+                  <div className="relative mx-auto grid max-w-[560px] grid-cols-1 gap-3 sm:grid-cols-2">
+                    {/* Today */}
                     <Link
                       href="/today"
-                      className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+                      className="pointer-events-auto inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-black/20 transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-black/30"
                     >
                       Today’s Devotional
                     </Link>
-                    <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
-                      Scripture, reflection, and prayer
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col items-stretch">
-                    <div className="[&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-sm [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-emerald-400/60">
+                    {/* Install */}
+                    <div className="pointer-events-auto [&>button]:w-full [&>button]:rounded-2xl [&>button]:shadow-md [&>button]:shadow-black/20 [&>button]:focus:outline-none [&>button]:focus:ring-2 [&>button]:focus:ring-white/70 [&>button]:focus:ring-offset-2 [&>button]:focus:ring-offset-black/30">
                       <InstallButton />
                     </div>
-                    <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
-                      Install on your phone for daily reminders
+                  </div>
+                </div>
+              </div>
+
+              {/* Content under video (text moved under, not on video) */}
+              <div className="px-6 py-7 sm:px-8 sm:py-8">
+                <div className="max-w-2xl">
+                  <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                    Calm, scripture-centered daily devotional
+                  </div>
+
+                  <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-6xl">
+                    A quiet daily walk with God.
+                  </h1>
+
+                  <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-700 sm:text-lg">
+                    One Scripture. One reflection. One prayer for today.
+                  </p>
+
+                  {/* Buttons under content (you already wanted these) */}
+                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-[560px]">
+                    <div className="flex flex-col items-stretch">
+                      <Link
+                        href="/today"
+                        className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-800 hover:-translate-y-[1px]"
+                      >
+                        Today’s Devotional
+                      </Link>
+                      <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
+                        Scripture, reflection, and prayer
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-stretch">
+                      <div className="[&>button]:w-full [&>button]:rounded-2xl">
+                        <InstallButton />
+                      </div>
+                      <div className="mt-1.5 text-center text-[12px] font-medium text-slate-600">
+                        Install on your phone for daily reminders
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -147,21 +179,27 @@ export default function HomePage() {
 
               <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">Scripture</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    Scripture
+                  </div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     A steady anchor for your day.
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">Reflection</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    Reflection
+                  </div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     Short, practical, and grounded.
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <div className="text-sm font-semibold text-slate-900">Prayer</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    Prayer
+                  </div>
                   <div className="mt-1 text-sm leading-relaxed text-slate-600">
                     Spoken faith you can carry forward.
                   </div>
@@ -174,6 +212,7 @@ export default function HomePage() {
             </div>
           </section>
 
+          {/* FOOTER */}
           <footer className="mt-10 pb-6 text-xs text-slate-500">
             MANNA • Daily Bread. Daily Walk.
           </footer>
