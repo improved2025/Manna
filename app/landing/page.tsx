@@ -3,25 +3,42 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
-  // ✅ Update these two paths to match your actual saved files in /public
-  // Example:
-  // posterSrc = "/images/landing/landing-welcome-poster.jpg"
-  // videoSrc  = "/videos/landing-welcome.mp4"
+  // ✅ your confirmed poster path
   const posterSrc = "/images/landing/landing-poster.jpg";
+
+  // ✅ set this to your real welcome video path (you said files are saved properly; keep it here)
+  // If your video is elsewhere, update ONLY this line.
   const videoSrc = "/videos/landing-welcome.mp4";
 
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  function onTapPlay() {
+  // Make sure when we switch to video, it starts immediately (user-initiated)
+  async function handlePlay() {
     setPlaying(true);
-    requestAnimationFrame(() => {
-      videoRef.current?.play().catch(() => {});
+    // wait a tick so the video exists in DOM
+    requestAnimationFrame(async () => {
+      try {
+        await videoRef.current?.play();
+      } catch {
+        // if autoplay is blocked, user can still hit play via controls
+      }
     });
   }
+
+  // If video ends, go back to poster (no loop)
+  useEffect(() => {
+    if (!playing || !videoRef.current) return;
+    const v = videoRef.current;
+
+    const onEnded = () => setPlaying(false);
+    v.addEventListener("ended", onEnded);
+
+    return () => v.removeEventListener("ended", onEnded);
+  }, [playing]);
 
   return (
     <>
@@ -32,58 +49,64 @@ export default function HomePage() {
           {/* HERO */}
           <section className="relative w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
             <div className="relative">
-              {/* Poster-first (works on iPhone). Video mounts only after tap. */}
-              {!playing ? (
-                <button
-                  type="button"
-                  onClick={onTapPlay}
-                  className="relative block w-full"
-                  aria-label="Play MANNA welcome video"
-                >
-                  {/* Poster image */}
-                  <img
-                    src={posterSrc}
-                    alt="MANNA welcome"
-                    className="block h-[46vh] w-full object-cover sm:h-[52vh]"
-                    loading="eager"
+              {/* ✅ Always render the poster image as a REAL image layer (works on iPhone) */}
+              <div className="relative h-[46vh] w-full sm:h-[52vh] bg-black">
+                {/* Poster as img, always reliable */}
+                {!playing && (
+                  <>
+                    <img
+                      src={posterSrc}
+                      alt="MANNA welcome"
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                    {/* subtle overlay for depth */}
+                    <div className="absolute inset-0 bg-black/10" />
+
+                    {/* Play button layer */}
+                    <button
+                      type="button"
+                      onClick={handlePlay}
+                      className="absolute inset-0 flex items-center justify-center"
+                      aria-label="Play welcome video"
+                    >
+                      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M8.5 6.8v10.4c0 .8.9 1.3 1.6.9l8.2-5.2c.7-.4.7-1.4 0-1.8L10.1 5.9c-.7-.4-1.6.1-1.6.9z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </span>
+                    </button>
+                  </>
+                )}
+
+                {/* Video only mounts after tap */}
+                {playing && (
+                  <video
+                    ref={videoRef}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    src={videoSrc}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    // ✅ not muted
+                    // ✅ not looped
+                    // ✅ no poster reliance on iOS (poster is our image layer)
                   />
-
-                  {/* Subtle overlay */}
-                  <div className="pointer-events-none absolute inset-0 bg-black/15" />
-
-                  {/* Play button */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/92 shadow-lg">
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M8.5 6.8v10.4c0 .8.9 1.3 1.6.9l8.2-5.2c.7-.4.7-1.4 0-1.8L10.1 5.9c-.7-.4-1.6.1-1.6.9z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </button>
-              ) : (
-                <video
-                  ref={videoRef}
-                  className="block h-[46vh] w-full object-cover sm:h-[52vh]"
-                  src={videoSrc}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  // ✅ not muted
-                  // ✅ not looped
-                />
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Text UNDER the video (no overlay text) */}
+            {/* Text UNDER the media */}
             <div className="p-5 sm:p-7">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 A quiet daily walk with God.
@@ -102,7 +125,6 @@ export default function HomePage() {
                   Today’s Devotional
                 </Link>
 
-                {/* Keep component untouched; polish wrapper only */}
                 <div className="[&>button]:w-full [&>button]:rounded-2xl">
                   <InstallButton />
                 </div>
@@ -157,7 +179,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* FOOTER */}
           <footer className="mt-10 pb-6 text-xs text-slate-500">
             MANNA • Daily Bread. Daily Walk.
           </footer>
