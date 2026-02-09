@@ -83,7 +83,9 @@ function makeSupabaseClient() {
 
 export default function TodayPage() {
   const [season, setSeason] = useState<Season>("Preparation");
-  const [daykey, setDaykey] = useState<string>(() => getLocalDayKey(new Date()));
+  const [daykey, setDaykey] = useState<string>(() =>
+    getLocalDayKey(new Date())
+  );
   const [loading, setLoading] = useState(true);
   const [row, setRow] = useState<DailyRow | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -171,9 +173,7 @@ export default function TodayPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 animate-page-in">
       <header className="space-y-2">
-        <div className="text-sm font-medium text-slate-600">
-          MANNA • {daykey}
-        </div>
+        <div className="text-sm font-medium text-slate-600">MANNA • {daykey}</div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Today’s Devotional
         </h1>
@@ -193,28 +193,10 @@ export default function TodayPage() {
 
       <section className="mt-6 space-y-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm overflow-hidden motion-soft">
-          {/* HERO: VIDEO (preferred) with perfect framing + AUDIO
-              Falls back to your existing HeroRotator if video fails to load */}
-          <div className="relative h-36 sm:h-44 w-full bg-black overflow-hidden">
-            <video
-              autoPlay
-              loop
-              playsInline
-              controls
-              preload="metadata"
-              className="absolute inset-0 h-full w-full object-contain"
-              // NOTE:
-              // - Remove "muted" so audio is available.
-              // - Most mobile browsers will NOT autoplay audio. User must tap play (controls enabled).
-            >
-              <source src="/videos/today-calm.mp4" type="video/mp4" />
-            </video>
-
-            {/* subtle tone overlay */}
-            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-
-            {/* Image fallback behind video (and helpful if video takes a moment) */}
-            <div className="absolute inset-0 -z-10">
+          {/* HERO: Video with better framing + audio, no loop, with poster */}
+          <div className="relative h-36 sm:h-44 w-full overflow-hidden bg-black">
+            {/* Visual fallback behind video */}
+            <div className="absolute inset-0">
               <HeroRotator
                 images={[
                   "/images/today/today-reflection.jpg",
@@ -227,6 +209,23 @@ export default function TodayPage() {
                 overlayClassName="bg-black/15"
               />
             </div>
+
+            <video
+              className="absolute inset-0 z-10 h-full w-full object-cover object-center"
+              src="/videos/today-calm.mp4"
+              poster="/images/today/today-reflection.jpg"
+              playsInline
+              preload="metadata"
+              controls
+              // IMPORTANT:
+              // - Not muted => audio available
+              // - No loop => plays once
+              // - Autoplay without muted may be blocked on mobile; controls are enabled for user start.
+              autoPlay
+            />
+
+            {/* subtle tone overlay */}
+            <div className="absolute inset-0 z-20 bg-black/10 pointer-events-none" />
           </div>
 
           <div className="p-6">
@@ -287,7 +286,7 @@ export default function TodayPage() {
                       Sit with this Scripture for a quiet moment.
                     </div>
 
-                    {/* Install CTA (emerald, never white) */}
+                    {/* Install CTA */}
                     <div className="mt-4">
                       <InstallButton
                         variant="primary"
