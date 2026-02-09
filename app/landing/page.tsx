@@ -3,10 +3,27 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import InstallButton from "../../components/InstallButton";
+import { useRef, useState } from "react";
 
 export default function HomePage() {
   const posterSrc = "/images/landing/landing-poster.jpg";
   const videoSrc = "/videos/landing-welcome.mp4";
+
+  const [playRequested, setPlayRequested] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  function startVideo() {
+    setPlayRequested(true);
+
+    // Let React mount the <video>, then play.
+    setTimeout(() => {
+      const v = videoRef.current;
+      if (!v) return;
+      v.play().catch(() => {
+        // If Safari blocks it, user can hit play in controls.
+      });
+    }, 0);
+  }
 
   return (
     <>
@@ -14,29 +31,60 @@ export default function HomePage() {
 
       <main className="bg-slate-50 animate-page-in">
         <div className="mx-auto max-w-6xl px-6 py-12">
-          {/* HERO VIDEO */}
+          {/* HERO VIDEO (poster-first to avoid white flash on mobile Safari) */}
           <section className="w-full overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm motion-soft">
-            {/* Video wrapper uses poster as a background fallback (prevents white flash) */}
-            <div
-              className="relative"
-              style={{
-                backgroundImage: `url(${posterSrc})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <video
-                className="block h-[46vh] w-full object-cover sm:h-[52vh]"
-                src={videoSrc}
-                poster={posterSrc}
-                controls
-                playsInline
-                preload="metadata"
-                // IMPORTANT: no muted, no loop
-              />
+            <div className="relative">
+              {!playRequested ? (
+                <button
+                  type="button"
+                  onClick={startVideo}
+                  className="group relative block w-full"
+                  aria-label="Play welcome video"
+                >
+                  {/* Poster */}
+                  <img
+                    src={posterSrc}
+                    alt="MANNA welcome"
+                    className="block h-[46vh] w-full object-cover sm:h-[52vh]"
+                    loading="eager"
+                  />
+
+                  {/* Subtle dark overlay for legibility */}
+                  <div className="pointer-events-none absolute inset-0 bg-black/20" />
+
+                  {/* Play button */}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-200 group-hover:scale-[1.03]">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M8.5 6.8v10.4c0 .8.9 1.3 1.6.9l8.2-5.2c.7-.4.7-1.4 0-1.8L10.1 5.9c-.7-.4-1.6.1-1.6.9z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <video
+                  ref={videoRef}
+                  className="block h-[46vh] w-full object-cover sm:h-[52vh]"
+                  src={videoSrc}
+                  poster={posterSrc}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  // IMPORTANT: no muted, no loop
+                />
+              )}
             </div>
 
-            {/* Title + buttons under video */}
+            {/* Title + buttons under video (no clustering on the media) */}
             <div className="p-5 sm:p-7">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 A quiet daily walk with God.
