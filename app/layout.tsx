@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "MANNA",
   description: "Daily Bread. Daily Walk.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {
