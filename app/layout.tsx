@@ -3,7 +3,6 @@ import "./globals.css";
 import PwaRegister from "../components/PwaRegister";
 import InstallTracking from "../components/InstallTracking";
 import OfflineNavGuard from "../components/OfflineNavGuard";
-import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "MANNA",
@@ -11,6 +10,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 
@@ -30,7 +31,6 @@ export default function RootLayout({
         <OfflineNavGuard />
         <InstallTracking />
         {children}
-        <Analytics />
       </body>
     </html>
   );
