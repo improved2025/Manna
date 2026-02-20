@@ -1,150 +1,158 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useEffect, useMemo, useState } from "react";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnon);
-
-export default function NotificationSoftPrompt({
-  delayMs = 4000,
-}: {
+type Props = {
   delayMs?: number;
   cooldownDays?: number;
-}) {
+};
+
+function safeGetLS(key: string): string | null {
+  try {
+    if (typeof window === "undefined") return null;
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetLS(key: string, value: string) {
+  try {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(key, value);
+  } catch {
+    // ignore
+  }
+}
+
+function daysToMs(days: number) {
+  return days * 24 * 60 * 60 * 1000;
+}
+
+function nowMs() {
+  return Date.now();
+}
+
+export default function NotificationSoftPrompt({
+  delayMs = 6000,
+  cooldownDays = 4,
+}: Props) {
   const [show, setShow] = useState(false);
+  const [permission, setPermission] = useState<NotificationPermission | "na">(
+    "na"
+  );
   const [debug, setDebug] = useState<string>("");
 
-  function log(msg: string) {
-    console.log("[push]", msg);
-    setDebug((p) => (p ? `${p}\n${msg}` : msg));
-  }
+  const cooldownMs = useMemo(() => daysToMs(cooldownDays), [cooldownDays]);
 
+  // Only evaluate notification capability on client
   useEffect(() => {
-    const t = setTimeout(async () => {
-      if (!("Notification" in window)) {
-        log("Notification API not available in this browser.");
-        return;
-      }
+    if (typeof window === "undefined") return;
 
-      log(`Notification.permission = ${Notification.permission}`);
+    const hasNotification = "Notification" in window;
+    if (!hasNotification) {
+      setPermission("na");
+      setDebug("Notifications not supported in this browser.");
+      return;
+    }
 
-      // If already granted, DO NOT keep prompting. Just try to register.
-      if (Notification.permission === "granted") {
-        await registerPush();
-        return;
-      }
+    setPermission(window.Notification.permission);
+    setDebug(`Notification.permission = ${window.Notification.permission}`);
+  }, []);
 
+  // Decide whether to show prompt (client-only)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("Notification" in window)) return;
+
+    const p = window.Notification.permission;
+    setPermission(p);
+
+    // If already granted or denied, don’t keep nagging
+    if (p === "granted" || p === "denied") {
+      setShow(false);
+      return;
+    }
+
+    const key = "manna_notif_prompt_last_shown";
+    const last = safeGetLS(key);
+    const lastMs = last ? Number(last) : 0;
+
+    const withinCooldown =
+      Number.isFinite(lastMs) && lastMs > 0 && nowMs() - lastMs < cooldownMs;
+
+    if (withinCooldown) {
+      setShow(false);
+      return;
+    }
+
+    const t = window.setTimeout(() => {
+      safeSetLS(key, String(nowMs()));
       setShow(true);
     }, delayMs);
 
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => window.clearTimeout(t);
+  }, [delayMs, cooldownMs]);
 
-  async function registerPush() {
+  async function requestPermission() {
+    if (typeof window === "undefined") return;
+    if (!("Notification" in window)) {
+      setDebug("Notifications not supported.");
+      return;
+    }
+
     try {
-      if (!supabaseUrl || !supabaseAnon) {
-        log("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
-        return;
-      }
-      if (!vapidKey) {
-        log("Missing NEXT_PUBLIC_VAPID_PUBLIC_KEY");
-        return;
-      }
-
-      if (!("serviceWorker" in navigator)) {
-        log("ServiceWorker not available.");
-        return;
-      }
-
-      const reg = await navigator.serviceWorker.ready;
-      log("ServiceWorker ready.");
-
-      let sub = await reg.pushManager.getSubscription();
-      log(`Existing subscription = ${sub ? "YES" : "NO"}`);
-
-      if (!sub) {
-        log("Subscribing to push…");
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: vapidKey,
-        });
-        log("Push subscribe OK.");
-      }
-
-      const payload = sub.toJSON();
-      log("Subscription endpoint captured.");
-
-      // IMPORTANT: If your table uses RLS, this is where it will fail.
-      const { error } = await supabase.from("push_subscribers").insert({
-        endpoint: sub.endpoint,
-        payload,
-        created_at: new Date().toISOString(),
-      });
-
-      if (error) {
-        log(`Supabase INSERT error: ${error.message}`);
-        return;
-      }
-
-      log("Supabase insert SUCCESS. New row should exist now.");
+      const result = await window.Notification.requestPermission();
+      setPermission(result);
+      setDebug(`Permission result = ${result}`);
       setShow(false);
+
+      // OPTIONAL: If you have install/subscription logic elsewhere, keep it there.
+      // This component should ONLY ask permission and stop.
     } catch (e: any) {
-      log(`registerPush exception: ${e?.message || String(e)}`);
+      setDebug(`Permission request error: ${e?.message || "Unknown error"}`);
     }
   }
 
-  async function allow() {
-    try {
-      const perm = await Notification.requestPermission();
-      log(`requestPermission result = ${perm}`);
-
-      if (perm !== "granted") return;
-
-      await registerPush();
-      setShow(false);
-    } catch (e: any) {
-      log(`allow exception: ${e?.message || String(e)}`);
-    }
-  }
-
-  // Debug panel (temporary). Remove after this is fixed.
-  const DebugPanel = (
-    <div className="mt-3 whitespace-pre-wrap rounded-lg bg-black/20 p-2 text-[11px] text-white/90">
-      {debug || "…"}
-    </div>
-  );
-
-  if (!show && Notification.permission !== "granted") return null;
+  if (!show) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl bg-emerald-700 p-4 text-white shadow-xl">
-      <div className="text-sm font-semibold">Get daily MANNA reminders</div>
-      <div className="mt-1 text-xs opacity-90">
-        Scripture. Prayer. One quiet moment each day.
+    <div className="fixed bottom-4 left-0 right-0 z-50 px-4">
+      <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-lg">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-sm font-semibold text-slate-900">
+              Get daily MANNA reminders
+            </div>
+            <div className="mt-1 text-sm text-slate-600">
+              A gentle prompt for Scripture and prayer each day.
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShow(false)}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              type="button"
+            >
+              Not now
+            </button>
+
+            <button
+              onClick={requestPermission}
+              className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+              type="button"
+            >
+              Allow
+            </button>
+          </div>
+        </div>
+
+        {/* Debug panel (safe client-only) */}
+        <div className="mt-3 rounded-xl bg-slate-900/90 px-3 py-2 text-[11px] text-white">
+          permission: {permission} • {debug}
+        </div>
       </div>
-
-      {Notification.permission === "granted" ? (
-        <button
-          onClick={registerPush}
-          className="mt-3 w-full rounded-lg bg-white py-2 text-sm font-semibold text-emerald-800"
-        >
-          Register reminders
-        </button>
-      ) : (
-        <button
-          onClick={allow}
-          className="mt-3 w-full rounded-lg bg-white py-2 text-sm font-semibold text-emerald-800"
-        >
-          Enable reminders
-        </button>
-      )}
-
-      {DebugPanel}
     </div>
   );
 }
