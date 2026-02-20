@@ -1,160 +1,78 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const LS = {
-  enabled: "manna_notif_enabled", // "true"
-  denied: "manna_notif_denied", // "true"
-  cooldownUntil: "manna_notif_cooldown_until", // number (ms)
-};
-
-type Props = {
-  delayMs?: number; // default 6000
-  cooldownDays?: number; // default 4 (your 3–5 day window)
-  onAllow?: () => void; // optional callback after successful enable
-  onNotNow?: () => void; // optional
-};
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function NotificationSoftPrompt({
-  delayMs = 6000,
+  delayMs = 4000,
   cooldownDays = 4,
-  onAllow,
-  onNotNow,
-}: Props) {
-  const [open, setOpen] = useState(false);
-
-  const shouldEvenConsider = useMemo(() => {
-    if (typeof window === "undefined") return false;
-
-    // If already enabled, never prompt
-    if (localStorage.getItem(LS.enabled) === "true") return false;
-
-    // If previously denied at system level, never prompt again
-    if (localStorage.getItem(LS.denied) === "true") return false;
-
-    // If browser permission already denied, never prompt again
-    if ("Notification" in window && Notification.permission === "denied") {
-      localStorage.setItem(LS.denied, "true");
-      return false;
-    }
-
-    // Cooldown
-    const cooldownUntilRaw = localStorage.getItem(LS.cooldownUntil);
-    const cooldownUntil = cooldownUntilRaw ? Number(cooldownUntilRaw) : 0;
-    if (cooldownUntil && Date.now() < cooldownUntil) return false;
-
-    return true;
-  }, []);
+}) {
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!shouldEvenConsider) return;
-
-    const t = window.setTimeout(() => setOpen(true), delayMs);
-    return () => window.clearTimeout(t);
-  }, [shouldEvenConsider, delayMs]);
-
-  const close = () => setOpen(false);
-
-  const handleNotNow = () => {
-    const daysMs = cooldownDays * 24 * 60 * 60 * 1000;
-    localStorage.setItem(LS.cooldownUntil, String(Date.now() + daysMs));
-    onNotNow?.();
-    close();
-  };
-
-  const handleAllow = async () => {
-    try {
-      // If notifications are not supported, do nothing (silence > breaking trust)
+    const timer = setTimeout(async () => {
       if (!("Notification" in window)) return;
 
-      const permission = await Notification.requestPermission();
-
-      if (permission !== "granted") {
-        localStorage.setItem(LS.denied, "true");
+      if (Notification.permission === "granted") {
+        await registerPush();
         return;
       }
 
-      if (!("serviceWorker" in navigator)) return;
+      setShow(true);
+    }, delayMs);
 
-      const reg = await navigator.serviceWorker.ready;
+    return () => clearTimeout(timer);
+  }, [delayMs]);
 
-      const pkRes = await fetch("/api/push/public-key");
-      const pkJson = await pkRes.json();
-      const publicKey: string | undefined = pkJson?.publicKey;
+  async function registerPush() {
+    const reg = await navigator.serviceWorker.ready;
 
-      if (!publicKey) return;
+    let sub = await reg.pushManager.getSubscription();
 
-      const urlBase64ToUint8Array = (base64String: string) => {
-        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-        const base64 = (base64String + padding)
-          .replace(/-/g, "+")
-          .replace(/_/g, "/");
-        const raw = atob(base64);
-        const output = new Uint8Array(raw.length);
-        for (let i = 0; i < raw.length; ++i) output[i] = raw.charCodeAt(i);
-        return output;
-      };
-
-      const subscription = await reg.pushManager.subscribe({
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
+        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
       });
-
-      const saveRes = await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription }),
-      });
-
-      const saved = await saveRes.json();
-
-    if (saved?.ok === true) {
-  localStorage.setItem(LS.enabled, "true");
-  console.log("manna_notif_enabled set");
-  localStorage.removeItem(LS.denied);
-  localStorage.removeItem(LS.cooldownUntil);
-  onAllow?.();
-}
-    } catch {
-      // silence > breaking trust
-    } finally {
-      close();
     }
-  };
 
-  if (!open) return null;
+    await supabase.from("push_subscribers").upsert({
+      endpoint: sub.endpoint,
+      payload: sub.toJSON(),
+      created_at: new Date().toISOString(),
+    });
+  }
+
+  async function allow() {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return;
+
+    await registerPush();
+    setShow(false);
+  }
+
+  if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-      {/* backdrop */}
-      <button
-        aria-label="Close"
-        onClick={close}
-        className="absolute inset-0 bg-black/40"
-      />
-
-      {/* sheet */}
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
-        <p className="text-base font-medium text-gray-900">
-          Remind you when today’s manna is ready?
-        </p>
-
-        <div className="mt-4 flex gap-3">
-          <button
-            onClick={handleAllow}
-            className="flex-1 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white"
-          >
-            ALLOW
-          </button>
-
-          <button
-            onClick={handleNotNow}
-            className="flex-1 rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-900"
-          >
-            NOT NOW
-          </button>
-        </div>
+    <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl bg-emerald-700 p-4 text-white shadow-xl">
+      <div className="text-sm font-semibold">
+        Get daily MANNA reminders
       </div>
+      <div className="mt-1 text-xs opacity-90">
+        Scripture. Prayer. One quiet moment each day.
+      </div>
+
+      <button
+        onClick={allow}
+        className="mt-3 w-full rounded-lg bg-white py-2 text-sm font-semibold text-emerald-800"
+      >
+        Enable reminders
+      </button>
     </div>
   );
 }
