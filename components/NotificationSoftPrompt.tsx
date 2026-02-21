@@ -33,52 +33,42 @@ function nowMs() {
   return Date.now();
 }
 
-// VAPID public key comes from your route: /api/push/public-key
-async function getVapidPublicKey(): Promise<string> {
-  const res = await fetch("/api/push/public-key", { cache: "no-store" });
-  if (!res.ok) throw new Error(`public-key failed (${res.status})`);
-  const data = await res.json();
-  const key = data?.publicKey;
-  if (!key || typeof key !== "string") throw new Error("publicKey missing");
-  return key;
-}
-
-// Convert base64url VAPID key to Uint8Array (required by PushManager)
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-  return outputArray;
-}
-
 export default function NotificationSoftPrompt({
   delayMs = 6000,
   cooldownDays = 4,
 }: Props) {
   const [show, setShow] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission | "na">("na");
+  const [permission, setPermission] = useState<NotificationPermission | "na">(
+    "na"
+  );
   const [debug, setDebug] = useState<string>("");
 
   const cooldownMs = useMemo(() => daysToMs(cooldownDays), [cooldownDays]);
 
-  // Init (client-only)
+  // Debug only when URL has ?debug=1
+  const debugEnabled = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    const p = new URLSearchParams(window.location.search);
+    return p.get("debug") === "1";
+  }, []);
+
+  // Capability + initial permission (client-only)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const hasNotification = "Notification" in window;
     if (!hasNotification) {
       setPermission("na");
-      setDebug("Init: Notifications not supported.");
+      setDebug("Notifications not supported in this browser.");
       return;
     }
 
-    setPermission(window.Notification.permission);
-    setDebug(`Init: Notification.permission=${window.Notification.permission}`);
+    const p = window.Notification.permission;
+    setPermission(p);
+    setDebug(`Init: Notification.permission=${p}`);
   }, []);
 
-  // Decide whether to show prompt
+  // Decide whether to show prompt (client-only)
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("Notification" in window)) return;
@@ -86,7 +76,7 @@ export default function NotificationSoftPrompt({
     const p = window.Notification.permission;
     setPermission(p);
 
-    // Don’t show if granted or denied
+    // If already granted or denied, do not show prompt
     if (p === "granted" || p === "denied") {
       setShow(false);
       return;
@@ -112,67 +102,23 @@ export default function NotificationSoftPrompt({
     return () => window.clearTimeout(t);
   }, [delayMs, cooldownMs]);
 
-  async function subscribeAndSendToServer() {
-    // Preconditions
-    if (typeof window === "undefined") throw new Error("Not in browser");
-    if (!("serviceWorker" in navigator)) throw new Error("No serviceWorker support");
-    if (!("PushManager" in window)) {
-      // This is the classic case on iPhone when you’re in Safari tab, not installed PWA.
-      throw new Error("PushManager not available (install app / use supported browser)");
-    }
-
-    setDebug("Step: waiting for service worker…");
-    const reg = await navigator.serviceWorker.ready;
-
-    setDebug("Step: getting VAPID key…");
-    const vapidKey = await getVapidPublicKey();
-
-    setDebug("Step: subscribing…");
-    const subscription = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidKey),
-    });
-
-    setDebug("Step: sending subscription to server…");
-    const res = await fetch("/api/push/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subscription }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`subscribe route failed (${res.status}) ${text}`);
-    }
-
-    setDebug("OK: subscription saved to Supabase.");
-    safeSetLS("manna_notif_subscribed", "1");
-  }
-
-  async function handleAllow() {
+  async function requestPermission() {
     if (typeof window === "undefined") return;
-    if (!("Notification" in window)) {
-      setDebug("Allow: Notifications not supported.");
-      return;
-    }
+    if (!("Notification" in window)) return;
 
     try {
-      setDebug("Step: requesting permission…");
       const result = await window.Notification.requestPermission();
       setPermission(result);
-      setDebug(`Permission result=${result}`);
+      setDebug((prev) => `${prev} • Permission result=${result}`);
 
-      if (result !== "granted") {
-        setShow(false);
-        return;
-      }
-
-      // Permission granted → create push subscription + send to Supabase
-      await subscribeAndSendToServer();
-
+      // Close prompt once user decides
       setShow(false);
+
+      // Optional: extend cooldown after a decision so it never feels naggy
+      safeSetLS("manna_notif_prompt_last_shown", String(nowMs()));
     } catch (e: any) {
-      setDebug(`FAIL: ${e?.message || "Unknown error"}`);
+      setDebug(`Permission request error: ${e?.message || "Unknown error"}`);
+      // Keep prompt open only if they want to try again
     }
   }
 
@@ -180,9 +126,9 @@ export default function NotificationSoftPrompt({
 
   return (
     <div className="fixed bottom-4 left-0 right-0 z-50 px-4">
-      <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-lg">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-lg backdrop-blur">
+        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="min-w-0">
             <div className="text-sm font-semibold text-slate-900">
               Get daily MANNA reminders
             </div>
@@ -191,18 +137,18 @@ export default function NotificationSoftPrompt({
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex shrink-0 gap-2">
             <button
               onClick={() => setShow(false)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
               type="button"
             >
               Not now
             </button>
 
             <button
-              onClick={handleAllow}
-              className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+              onClick={requestPermission}
+              className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
               type="button"
             >
               Allow
@@ -210,10 +156,12 @@ export default function NotificationSoftPrompt({
           </div>
         </div>
 
-        {/* Debug panel */}
-        <div className="mt-3 rounded-xl bg-slate-900/90 px-3 py-2 text-[11px] text-white">
-          permission: {permission} • {debug}
-        </div>
+        {/* Debug (hidden unless ?debug=1) */}
+        {debugEnabled ? (
+          <div className="border-t border-slate-200 bg-slate-50 px-4 py-2 text-[11px] text-slate-600">
+            permission: {permission} • {debug}
+          </div>
+        ) : null}
       </div>
     </div>
   );
