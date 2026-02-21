@@ -33,11 +33,21 @@ function nowMs() {
   return Date.now();
 }
 
-// VAPID helper
+// VAPID public key comes from your route: /api/push/public-key
+async function getVapidPublicKey(): Promise<string> {
+  const res = await fetch("/api/push/public-key", { cache: "no-store" });
+  if (!res.ok) throw new Error(`public-key failed (${res.status})`);
+  const data = await res.json();
+  const key = data?.publicKey;
+  if (!key || typeof key !== "string") throw new Error("publicKey missing");
+  return key;
+}
+
+// Convert base64url VAPID key to Uint8Array (required by PushManager)
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
+  const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
   return outputArray;
@@ -53,13 +63,14 @@ export default function NotificationSoftPrompt({
 
   const cooldownMs = useMemo(() => daysToMs(cooldownDays), [cooldownDays]);
 
+  // Init (client-only)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const hasNotification = "Notification" in window;
     if (!hasNotification) {
       setPermission("na");
-      setDebug("Notifications not supported in this browser.");
+      setDebug("Init: Notifications not supported.");
       return;
     }
 
@@ -67,6 +78,7 @@ export default function NotificationSoftPrompt({
     setDebug(`Init: Notification.permission=${window.Notification.permission}`);
   }, []);
 
+  // Decide whether to show prompt
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("Notification" in window)) return;
@@ -74,6 +86,7 @@ export default function NotificationSoftPrompt({
     const p = window.Notification.permission;
     setPermission(p);
 
+    // Don’t show if granted or denied
     if (p === "granted" || p === "denied") {
       setShow(false);
       return;
@@ -99,77 +112,47 @@ export default function NotificationSoftPrompt({
     return () => window.clearTimeout(t);
   }, [delayMs, cooldownMs]);
 
-  async function subscribeAndSend() {
-    if (typeof window === "undefined") return;
-
-    // 1) Service worker must exist
-    if (!("serviceWorker" in navigator)) {
-      setDebug("FAIL: serviceWorker not supported");
-      return;
-    }
-
-    // 2) Push must exist
+  async function subscribeAndSendToServer() {
+    // Preconditions
+    if (typeof window === "undefined") throw new Error("Not in browser");
+    if (!("serviceWorker" in navigator)) throw new Error("No serviceWorker support");
     if (!("PushManager" in window)) {
-      setDebug("FAIL: PushManager not supported (iOS requires Add to Home Screen)");
-      return;
+      // This is the classic case on iPhone when you’re in Safari tab, not installed PWA.
+      throw new Error("PushManager not available (install app / use supported browser)");
     }
 
-    setDebug("Step: waiting for service worker ready…");
+    setDebug("Step: waiting for service worker…");
     const reg = await navigator.serviceWorker.ready;
 
-    // 3) Fetch VAPID public key from your API
-    setDebug("Step: fetching VAPID public key…");
-    const pkRes = await fetch("/api/push/public-key", { cache: "no-store" });
-    if (!pkRes.ok) {
-      const t = await pkRes.text().catch(() => "");
-      setDebug(`FAIL: /api/push/public-key ${pkRes.status} ${t}`);
-      return;
-    }
+    setDebug("Step: getting VAPID key…");
+    const vapidKey = await getVapidPublicKey();
 
-    const pkJson = await pkRes.json().catch(() => null);
-    const publicKey = pkJson?.publicKey || pkJson?.key || pkJson?.vapidPublicKey;
-
-    if (!publicKey || typeof publicKey !== "string") {
-      setDebug("FAIL: public key response missing (expected { publicKey })");
-      return;
-    }
-
-    // 4) Reuse existing subscription if present
-    setDebug("Step: checking existing subscription…");
-    let sub = await reg.pushManager.getSubscription();
-
-    if (!sub) {
-      setDebug("Step: creating new subscription…");
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
-      });
-    } else {
-      setDebug("Step: using existing subscription…");
-    }
-
-    // 5) POST to Supabase via your route
-    setDebug("Step: sending subscription to server…");
-    const saveRes = await fetch("/api/push/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subscription: sub }),
+    setDebug("Step: subscribing…");
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey),
     });
 
-    if (!saveRes.ok) {
-      const t = await saveRes.text().catch(() => "");
-      setDebug(`FAIL: /api/push/subscribe ${saveRes.status} ${t}`);
-      return;
+    setDebug("Step: sending subscription to server…");
+    const res = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`subscribe route failed (${res.status}) ${text}`);
     }
 
-    const out = await saveRes.json().catch(() => ({}));
-    setDebug(`OK: subscribed & saved (${out?.ok ? "ok" : "saved"})`);
+    setDebug("OK: subscription saved to Supabase.");
+    safeSetLS("manna_notif_subscribed", "1");
   }
 
-  async function requestPermissionAndSubscribe() {
+  async function handleAllow() {
     if (typeof window === "undefined") return;
     if (!("Notification" in window)) {
-      setDebug("FAIL: Notifications not supported.");
+      setDebug("Allow: Notifications not supported.");
       return;
     }
 
@@ -177,18 +160,19 @@ export default function NotificationSoftPrompt({
       setDebug("Step: requesting permission…");
       const result = await window.Notification.requestPermission();
       setPermission(result);
+      setDebug(`Permission result=${result}`);
 
       if (result !== "granted") {
-        setDebug(`Stopped: permission=${result}`);
         setShow(false);
         return;
       }
 
-      // Permission granted: NOW create subscription + save to Supabase
-      await subscribeAndSend();
+      // Permission granted → create push subscription + send to Supabase
+      await subscribeAndSendToServer();
+
       setShow(false);
     } catch (e: any) {
-      setDebug(`FAIL: permission/subscribe error: ${e?.message || "Unknown error"}`);
+      setDebug(`FAIL: ${e?.message || "Unknown error"}`);
     }
   }
 
@@ -217,7 +201,7 @@ export default function NotificationSoftPrompt({
             </button>
 
             <button
-              onClick={requestPermissionAndSubscribe}
+              onClick={handleAllow}
               className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
               type="button"
             >
