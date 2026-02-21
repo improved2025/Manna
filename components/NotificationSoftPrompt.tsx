@@ -33,6 +33,15 @@ function nowMs() {
   return Date.now();
 }
 
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const output = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; ++i) output[i] = raw.charCodeAt(i);
+  return output;
+}
+
 export default function NotificationSoftPrompt({
   delayMs = 6000,
   cooldownDays = 4,
@@ -52,7 +61,7 @@ export default function NotificationSoftPrompt({
     return p.get("debug") === "1";
   }, []);
 
-  // Capability + initial permission (client-only)
+  // Initial capability + permission (client-only)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -68,7 +77,7 @@ export default function NotificationSoftPrompt({
     setDebug(`Init: Notification.permission=${p}`);
   }, []);
 
-  // Decide whether to show prompt (client-only)
+  // Decide whether to show prompt
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("Notification" in window)) return;
@@ -76,7 +85,7 @@ export default function NotificationSoftPrompt({
     const p = window.Notification.permission;
     setPermission(p);
 
-    // If already granted or denied, do not show prompt
+    // If already decided, don't show
     if (p === "granted" || p === "denied") {
       setShow(false);
       return;
@@ -102,7 +111,56 @@ export default function NotificationSoftPrompt({
     return () => window.clearTimeout(t);
   }, [delayMs, cooldownMs]);
 
-  async function requestPermission() {
+  async function ensureSupabaseSubscriptionWrite() {
+    // 1) Service worker must be registered
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) throw new Error("No serviceWorker");
+
+    // Wait for ready SW (important on iOS/Safari)
+    const reg = await navigator.serviceWorker.ready;
+
+    // 2) Need PushManager
+    if (!("PushManager" in window)) throw new Error("No PushManager");
+
+    // 3) Get VAPID public key from your route
+    const pkRes = await fetch("/api/push/public-key", { cache: "no-store" });
+    if (!pkRes.ok) throw new Error(`public-key route failed (${pkRes.status})`);
+    const pkJson = await pkRes.json();
+    const publicKey = pkJson?.publicKey;
+    if (!publicKey) throw new Error("Missing publicKey in response");
+
+    // 4) Reuse existing subscription if present, else subscribe
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+    }
+
+    // 5) POST subscription to your subscribe route
+    const subRes = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // your route accepts {subscription} or direct; we send {subscription}
+      body: JSON.stringify({ subscription: sub }),
+    });
+
+    if (!subRes.ok) {
+      let detail = "";
+      try {
+        const j = await subRes.json();
+        detail = j?.error ? `: ${j.error}` : "";
+      } catch {
+        // ignore
+      }
+      throw new Error(`subscribe route failed (${subRes.status})${detail}`);
+    }
+
+    return true;
+  }
+
+  async function onAllow() {
     if (typeof window === "undefined") return;
     if (!("Notification" in window)) return;
 
@@ -111,14 +169,25 @@ export default function NotificationSoftPrompt({
       setPermission(result);
       setDebug((prev) => `${prev} • Permission result=${result}`);
 
-      // Close prompt once user decides
-      setShow(false);
+      if (result !== "granted") {
+        setShow(false);
+        safeSetLS("manna_notif_prompt_last_shown", String(nowMs()));
+        return;
+      }
 
-      // Optional: extend cooldown after a decision so it never feels naggy
+      // IMPORTANT: permission granted is not enough.
+      // We must create/reuse PushSubscription and POST it to Supabase route.
+      await ensureSupabaseSubscriptionWrite();
+
+      // Success: close + cooldown
+      setShow(false);
       safeSetLS("manna_notif_prompt_last_shown", String(nowMs()));
+      setDebug((prev) => `${prev} • OK: subscription saved`);
     } catch (e: any) {
-      setDebug(`Permission request error: ${e?.message || "Unknown error"}`);
-      // Keep prompt open only if they want to try again
+      // If this fails, Supabase won't get a row. Keep prompt open only in debug mode.
+      const msg = e?.message || "Unknown error";
+      setDebug(`FAIL: ${msg}`);
+      if (!debugEnabled) setShow(false);
     }
   }
 
@@ -147,7 +216,7 @@ export default function NotificationSoftPrompt({
             </button>
 
             <button
-              onClick={requestPermission}
+              onClick={onAllow}
               className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
               type="button"
             >
