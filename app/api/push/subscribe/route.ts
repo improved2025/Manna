@@ -49,33 +49,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const now = new Date().toISOString();
-
-  // Keep created_at stable; update updated_at always
-  const { data: existing, error: readErr } = await supabase
-    .from("push_subscriptions")
-    .select("endpoint, created_at")
-    .eq("endpoint", endpoint)
-    .maybeSingle();
-
-  if (readErr) {
-    return NextResponse.json({ error: readErr.message }, { status: 500 });
-  }
-
-  const createdAt = existing?.created_at ?? now;
-
+  // Write ONLY columns that definitely exist in your table:
+  // endpoint, p256dh, auth
   const { error: upsertErr } = await supabase
     .from("push_subscriptions")
-    .upsert(
-      {
-        endpoint,
-        p256dh,
-        auth,
-        created_at: createdAt,
-        updated_at: now,
-      },
-      { onConflict: "endpoint" }
-    );
+    .upsert({ endpoint, p256dh, auth }, { onConflict: "endpoint" });
 
   if (upsertErr) {
     return NextResponse.json({ error: upsertErr.message }, { status: 500 });
